@@ -46,7 +46,7 @@ private:
     ComPtr<ID3D12CommandQueue> mp_queue = nullptr; // コマンドキュー
     ComPtr<IDXGISwapChain3> mp_swapchain = nullptr; // スワップチェイン
     ComPtr<ID3D12CommandAllocator> mp_allocator[FRAME_BUFFER_COUNT] = {nullptr}; // コマンドアロケータ
-    ComPtr<ID3D12CommandList> mp_commandlist = nullptr; // コマンドリスト
+    ComPtr<ID3D12GraphicsCommandList> mp_commandlist = nullptr; // コマンドリスト
     HANDLE m_fenceevent = nullptr; // フェンスで使うイベント
     ComPtr<ID3D12Fence> mp_fence = nullptr; // フェンス
     UINT64 m_fencevalue[FRAME_BUFFER_COUNT]; // フェンスの値(ダブルバッファリング用に2個)
