@@ -40,7 +40,7 @@ private:
     HWND m_hwnd;
     UINT m_framebuffer_width = 0;
     UINT m_framebuffer_height = 0;
-    UINT m_currentbackbuffer_index = 0;
+    UINT m_currentbackbufferindex = 0;
 
     ComPtr<ID3D12Device6> mp_device = nullptr; // デバイス
     ComPtr<ID3D12CommandQueue> mp_queue = nullptr; // コマンドキュー
@@ -58,11 +58,11 @@ private:
     bool CreateRenderTarget(); // レンダーターゲットを生成
     bool CreateDepthStencil(); // 深度ステンシルバッファを生成
 
-    UINT m_rtvdescriptor_size = 0; // レンダーターゲットビューのディスクリプタサイズ
+    UINT m_rtvdescriptorsize = 0; // レンダーターゲットビューのディスクリプタサイズ
     ComPtr<ID3D12DescriptorHeap> mp_rtvheap = nullptr; // レンダーターゲットのディスクリプタヒープ
     ComPtr<ID3D12Resource> mp_renderTargets[FRAME_BUFFER_COUNT] = {nullptr}; // レンダーターゲット(ダブルバッファリングするので2個)
 
-    UINT m_dsvdescriptor_size = 0; // 深度ステンシルのディスクリプタサイズ
+    UINT m_dsvdescriptorsize = 0; // 深度ステンシルのディスクリプタサイズ
     ComPtr<ID3D12DescriptorHeap> mp_dsvheap = nullptr; // 深度ステンシルのディスクリプタヒープ
     ComPtr<ID3D12Resource> mp_depthstencilbuffer = nullptr; // 深度ステンシルバッファ
 

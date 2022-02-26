@@ -63,7 +63,10 @@ void MainLoop() {
             TranslateMessage(&msg);
             DispatchMessage(&msg);
         } else {
-            // 後で描画処理を行う
+            // 後でこの行で更新処理を行う
+            gp_engine->BeginRender();
+            // 後でこの行で3Dオブジェクトの描画処理を行う
+            gp_engine->EndRender();
         }
     }
 }
