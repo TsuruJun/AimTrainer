@@ -1,5 +1,6 @@
 #include "app.h"
 #include "engine.h"
+#include "scene.h"
 
 HINSTANCE g_hinst;
 HWND  g_hwnd = NULL;
@@ -39,8 +40,8 @@ void InitWindow(const TCHAR *appname) {
 
     // ウィンドウサイズの設定
     RECT rect = {};
-    rect.right = static_cast<LONG>(g_window_width);
-    rect.bottom = static_cast<LONG>(g_window_height);
+    rect.right = static_cast<LONG>(WINDOW_WIDTH);
+    rect.bottom = static_cast<LONG>(WINDOW_HEIGHT);
 
     // ウィンドウサイズを調整
     auto style = WS_OVERLAPPED | WS_CAPTION | WS_SYSMENU;
@@ -63,9 +64,9 @@ void MainLoop() {
             TranslateMessage(&msg);
             DispatchMessage(&msg);
         } else {
-            // 後でこの行で更新処理を行う
+            gp_scene->Update();
             gp_engine->BeginRender();
-            // 後でこの行で3Dオブジェクトの描画処理を行う
+            gp_scene->Draw();
             gp_engine->EndRender();
         }
     }
@@ -77,11 +78,15 @@ void StartApp(const TCHAR *appname) {
 
     // 描画エンジンの初期化を行う
     gp_engine = new Engine();
-    if (!gp_engine->Init(g_hwnd, g_window_width, g_window_height)) {
+    if (!gp_engine->Init(g_hwnd, WINDOW_WIDTH, WINDOW_HEIGHT)) {
         return;
     }
 
-    // 後でここで3Dモデルの初期化を行う
+    // シーン初期化
+    gp_scene = new Scene();
+    if (!gp_scene->Init()) {
+        return;
+    }
 
     // メイン処理ループ
     MainLoop();
