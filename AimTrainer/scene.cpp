@@ -5,11 +5,17 @@
 #include "sharedstruct.h"
 #include "vertexbuffer.h"
 #include "constantbuffer.h"
+#include "rootsignature.h"
+#include "pipelinestate.h"
 using namespace DirectX;
 
 Scene *gp_scene;
 VertexBuffer *gp_vertexbuffer;
 ConstantBuffer *gp_constantbuffer[Engine::FRAME_BUFFER_COUNT];
+RootSignature *gp_rootsignature;
+PipelineState *gp_pipelinestate;
+
+float rotateY = 0.0f;
 
 bool Scene::Init() {
     Vertex vertices[3] = {};
@@ -50,6 +56,23 @@ bool Scene::Init() {
         ptr->proj = XMMatrixPerspectiveFovRH(fov, aspect, 0.3f, 1000.f);
     }
 
+    gp_rootsignature = new RootSignature();
+    if (!gp_rootsignature->IsValid()) {
+        printf("ルートシグネチャの生成に失敗");
+        return false;
+    }
+
+    gp_pipelinestate = new PipelineState();
+    gp_pipelinestate->SetInputLayout(Vertex::inputlayout);
+    gp_pipelinestate->SetRootSignature(gp_rootsignature->Get());
+    gp_pipelinestate->SetVertexShader(L"../x64/Debug/simplevertexshader.cso");
+    gp_pipelinestate->SetPixelShader(L"../x64/Debug/simplepixelshader.cso");
+    gp_pipelinestate->Create();
+    if (!gp_pipelinestate->IsValid()) {
+        printf("パイプラインステートの生成に失敗");
+        return false;
+    }
+
     printf("シーンの初期化に成功");
     return true;
 }
@@ -58,4 +81,18 @@ void Scene::Update() {
 }
 
 void Scene::Draw() {
+    rotateY += 0.002f;
+    auto currentindex = gp_engine->CurrentBackBufferIndex(); // 現在のフレーム番号を取得する
+    auto currenttransform = gp_constantbuffer[currentindex]->GetPtr<Transform>(); // 現在のフレーム番号に対応する定数バッファを取得
+    currenttransform->world = DirectX::XMMatrixRotationY(rotateY); // Y軸で回転させる
+    auto commandlist = gp_engine->CommandList(); // コマンドリスト
+    auto vertexbufferview = gp_vertexbuffer->View(); // 頂点バッファビュー
+
+    commandlist->SetGraphicsRootSignature(gp_rootsignature->Get()); // ルートシグネチャをセット
+    commandlist->SetPipelineState(gp_pipelinestate->Get()); // パイプラインステートをセット
+    commandlist->SetGraphicsRootConstantBufferView(0, gp_constantbuffer[currentindex]->GetAddress()); // 定数バッファをセット
+    commandlist->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST); // 三角形を描画する設定にする
+    commandlist->IASetVertexBuffers(0, 1, &vertexbufferview); // 頂点バッファをスロット0番を使って1個だけ設定する
+
+    commandlist->DrawInstanced(3, 1, 0, 0); // 3個の頂点を描画する
 }

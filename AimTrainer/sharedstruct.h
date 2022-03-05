@@ -9,6 +9,11 @@ struct Vertex {
     DirectX::XMFLOAT2 uv; // uvÀ•W
     DirectX::XMFLOAT3 tangent; // Ú‹óŠÔ
     DirectX::XMFLOAT4 color; // ’¸“_F
+    static const D3D12_INPUT_LAYOUT_DESC inputlayout;
+
+private:
+    static const int inputelementcount = 5;
+    static const D3D12_INPUT_ELEMENT_DESC inputelements[inputelementcount];
 };
 
 struct alignas(256) Transform {
