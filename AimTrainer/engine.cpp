@@ -151,7 +151,7 @@ bool Engine::CreateSwapChain() {
     DXGI_SWAP_CHAIN_DESC desc = {};
     desc.BufferDesc.Width = m_framebuffer_width;
     desc.BufferDesc.Height = m_framebuffer_height;
-    desc.BufferDesc.RefreshRate.Numerator = 60;
+    desc.BufferDesc.RefreshRate.Numerator = 240;
     desc.BufferDesc.RefreshRate.Denominator = 1;
     desc.BufferDesc.ScanlineOrdering = DXGI_MODE_SCANLINE_ORDER_UNSPECIFIED;
     desc.BufferDesc.Scaling = DXGI_MODE_SCALING_UNSPECIFIED;

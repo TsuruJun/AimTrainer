@@ -23,6 +23,7 @@
     <ClInclude Include="comptr.h" />
     <ClInclude Include="constantbuffer.h" />
     <ClInclude Include="engine.h" />
+    <ClInclude Include="indexbuffer.h" />
     <ClInclude Include="pipelinestate.h" />
     <ClInclude Include="rootsignature.h" />
     <ClInclude Include="scene.h" />
@@ -33,6 +34,7 @@
     <ClCompile Include="app.cpp" />
     <ClCompile Include="constantbuffer.cpp" />
     <ClCompile Include="engine.cpp" />
+    <ClCompile Include="indexbuffer.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="pipelinestate.cpp" />
     <ClCompile Include="rootsignature.cpp" />

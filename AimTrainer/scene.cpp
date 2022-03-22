@@ -7,32 +7,47 @@
 #include "constantbuffer.h"
 #include "rootsignature.h"
 #include "pipelinestate.h"
+#include "indexbuffer.h"
 using namespace DirectX;
 
 Scene *gp_scene;
 VertexBuffer *gp_vertexbuffer;
 ConstantBuffer *gp_constantbuffer[Engine::FRAME_BUFFER_COUNT];
+IndexBuffer *gp_indexbuffer;
 RootSignature *gp_rootsignature;
 PipelineState *gp_pipelinestate;
 
 float rotateY = 0.0f;
 
 bool Scene::Init() {
-    Vertex vertices[3] = {};
-    vertices[0].position = XMFLOAT3(-1.0f, -1.0f, 0.0f);
-    vertices[0].color = XMFLOAT4(0.0f, 0.0f, 1.0f, 1.0f);
+    Vertex vertices[4] = {};
+    vertices[0].position = XMFLOAT3(-1.0f, 1.0f, 0.0f);
+    vertices[0].color = XMFLOAT4(1.0f, 0.0f, 0.0f, 1.0f);
 
-    vertices[1].position = XMFLOAT3(1.0f, -1.0f, 0.0f);
+    vertices[1].position = XMFLOAT3(1.0f, 1.0f, 0.0f);
     vertices[1].color = XMFLOAT4(0.0f, 1.0f, 0.0f, 1.0f);
 
-    vertices[2].position = XMFLOAT3(0.0f, 1.0f, 0.0f);
-    vertices[2].color = XMFLOAT4(1.0f, 0.0f, 0.0f, 1.0f);
+    vertices[2].position = XMFLOAT3(1.0f, -1.0f, 0.0f);
+    vertices[2].color = XMFLOAT4(0.0f, 0.0f, 1.0f, 1.0f);
+
+    vertices[3].position = XMFLOAT3(-1.0f, -1.0f, 0.0f);
+    vertices[3].color = XMFLOAT4(1.0f, 0.0f, 1.0f, 1.0f);
 
     auto vertexsize = sizeof(Vertex) * std::size(vertices);
     auto vertexstride = sizeof(Vertex);
     gp_vertexbuffer = new VertexBuffer(vertexsize, vertexstride, vertices);
     if (!gp_vertexbuffer->IsValid()) {
         printf("頂点バッファの生成に失敗");
+        return false;
+    }
+
+    uint32_t indices[] = {0, 1, 2, 0, 2, 3}; // これに書かれている順序で描画する
+
+    // インデックスバッファの設定
+    auto size = sizeof(uint32_t) * std::size(indices);
+    gp_indexbuffer = new IndexBuffer(size, indices);
+    if (!gp_indexbuffer->IsValid()) {
+        printf("インデックスバッファの生成に失敗");
         return false;
     }
 
@@ -87,12 +102,14 @@ void Scene::Draw() {
     currenttransform->world = DirectX::XMMatrixRotationY(rotateY); // Y軸で回転させる
     auto commandlist = gp_engine->CommandList(); // コマンドリスト
     auto vertexbufferview = gp_vertexbuffer->View(); // 頂点バッファビュー
+    auto indexbufferview = gp_indexbuffer->View(); // インデックスバッファビュー
 
     commandlist->SetGraphicsRootSignature(gp_rootsignature->Get()); // ルートシグネチャをセット
     commandlist->SetPipelineState(gp_pipelinestate->Get()); // パイプラインステートをセット
     commandlist->SetGraphicsRootConstantBufferView(0, gp_constantbuffer[currentindex]->GetAddress()); // 定数バッファをセット
     commandlist->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST); // 三角形を描画する設定にする
     commandlist->IASetVertexBuffers(0, 1, &vertexbufferview); // 頂点バッファをスロット0番を使って1個だけ設定する
+    commandlist->IASetIndexBuffer(&indexbufferview); // インデックスバッファをセットする
 
-    commandlist->DrawInstanced(3, 1, 0, 0); // 3個の頂点を描画する
+    commandlist->DrawIndexedInstanced(6, 1, 0, 0, 0); // 3個の頂点を描画する
 }
