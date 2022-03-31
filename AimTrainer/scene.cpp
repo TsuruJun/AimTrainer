@@ -8,7 +8,14 @@
 #include "rootsignature.h"
 #include "pipelinestate.h"
 #include "indexbuffer.h"
+#include "fbxloader.h"
+#include <filesystem>
+#include "descriptorheap.h"
+#include "texture2D.h"
 using namespace DirectX;
+using namespace std;
+
+namespace fs = filesystem;
 
 Scene *gp_scene;
 VertexBuffer *gp_vertexbuffer;
@@ -16,45 +23,64 @@ ConstantBuffer *gp_constantbuffer[Engine::FRAME_BUFFER_COUNT];
 IndexBuffer *gp_indexbuffer;
 RootSignature *gp_rootsignature;
 PipelineState *gp_pipelinestate;
+DescriptorHeap *gp_descriptor_heap;
 
 float rotateY = 0.0f;
 
+const char *gp_model_file = "C:\\Users\\TsuruJun\\source\\repos\\Model\\fbx\\Alicia\\FBX\\Alicia_solid_Unity.FBX";
+vector<Mesh> g_meshes; // メッシュの配列
+vector<VertexBuffer *> gp_vertex_buffers; // メッシュの数分の頂点バッファ
+vector<IndexBuffer *> gp_index_buffers; // メッシュの数分のインデックスバッファ
+vector<DescriptorHandle *> gp_material_handles; // テクスチャ用のハンドル一覧
+
+// 拡張子を置き換える処理
+wstring ReplaceExtension(const wstring &origin, const char *extention) {
+    fs::path path = origin.c_str();
+    return path.replace_extension(extention).c_str();
+}
+
 bool Scene::Init() {
-    Vertex vertices[4] = {};
-    vertices[0].position = XMFLOAT3(-1.0f, 1.0f, 0.0f);
-    vertices[0].color = XMFLOAT4(1.0f, 0.0f, 0.0f, 1.0f);
-
-    vertices[1].position = XMFLOAT3(1.0f, 1.0f, 0.0f);
-    vertices[1].color = XMFLOAT4(0.0f, 1.0f, 0.0f, 1.0f);
-
-    vertices[2].position = XMFLOAT3(1.0f, -1.0f, 0.0f);
-    vertices[2].color = XMFLOAT4(0.0f, 0.0f, 1.0f, 1.0f);
-
-    vertices[3].position = XMFLOAT3(-1.0f, -1.0f, 0.0f);
-    vertices[3].color = XMFLOAT4(1.0f, 0.0f, 1.0f, 1.0f);
-
-    auto vertexsize = sizeof(Vertex) * std::size(vertices);
-    auto vertexstride = sizeof(Vertex);
-    gp_vertexbuffer = new VertexBuffer(vertexsize, vertexstride, vertices);
-    if (!gp_vertexbuffer->IsValid()) {
-        printf("頂点バッファの生成に失敗");
+    // Fbxモデル読み込み
+    FbxLoader loader;
+    if (!loader.FbxLoad(gp_model_file)) {
+        printf("Fbxモデルの読み込みに失敗");
         return false;
     }
+    g_meshes = loader.GetMeshes();
 
-    uint32_t indices[] = {0, 1, 2, 0, 2, 3}; // これに書かれている順序で描画する
+    // メッシュの数だけ頂点バッファを用意する
+    gp_vertex_buffers.reserve(g_meshes.size());
+    for (size_t i = 0; i < g_meshes.size(); ++i) {
+        auto size = sizeof(Vertex) * g_meshes[i].vertices.size();
+        auto stride = sizeof(Vertex);
+        auto vertices = g_meshes[i].vertices.data();
+        auto p_vertex_buffer = new VertexBuffer(size, stride, vertices);
+        if (!p_vertex_buffer->IsValid()) {
+            printf("頂点バッファの生成に失敗\n");
+            return false;
+        }
 
-    // インデックスバッファの設定
-    auto size = sizeof(uint32_t) * std::size(indices);
-    gp_indexbuffer = new IndexBuffer(size, indices);
-    if (!gp_indexbuffer->IsValid()) {
-        printf("インデックスバッファの生成に失敗");
-        return false;
+        gp_vertex_buffers.emplace_back(p_vertex_buffer);
     }
 
-    auto eyeposition = XMVectorSet(0.0f, 0.0f, 5.0f, 0.0f); // 視点の位置
-    auto targetposition = XMVectorZero(); // 視点を向ける座標
+    // メッシュの数だけインデックスバッファを用意する
+    gp_index_buffers.reserve(g_meshes.size());
+    for (size_t i = 0; i < g_meshes.size(); ++i) {
+        auto size = sizeof(uint32_t) * g_meshes[i].indices.size();
+        auto indices = g_meshes[i].indices.data();
+        auto p_index_buffer = new IndexBuffer(size, indices);
+        if (!p_index_buffer->IsValid()) {
+            printf("インデックスバッファの生成に失敗");
+            return false;
+        }
+
+        gp_index_buffers.emplace_back(p_index_buffer);
+    }
+
+    auto eyeposition = XMVectorSet(0.0f, 100.0, 100.0, 0.0f); // 視点の位置
+    auto targetposition = XMVectorSet(0.0f, 120.0, 0.0, 0.0f);; // 視点を向ける座標
     auto upward = XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f); // 上方向を表すベクトル
-    constexpr auto fov = XMConvertToRadians(37.5); // 視野角
+    constexpr auto fov = XMConvertToRadians(60); // 視野角
     auto aspect = static_cast<float>(WINDOW_WIDTH) / static_cast<float>(WINDOW_HEIGHT); // アスペクト比
 
     for (size_t i = 0; i < Engine::FRAME_BUFFER_COUNT; ++i) {
@@ -69,6 +95,17 @@ bool Scene::Init() {
         ptr->world = XMMatrixIdentity();
         ptr->view = XMMatrixLookAtRH(eyeposition, targetposition, upward);
         ptr->proj = XMMatrixPerspectiveFovRH(fov, aspect, 0.3f, 1000.f);
+    }
+
+    // マテリアル読み込み
+    gp_material_handles.clear();
+    gp_descriptor_heap = new DescriptorHeap();
+
+    for (size_t i = 0; i < g_meshes.size(); ++i) {
+        auto texture_path = ReplaceExtension(g_meshes[i].diffusemap, "tga"); // // もともとはpsdになっていてちょっとめんどかったので、同梱されているtgaを読み込む
+        auto main_texture = Texture2D::Get(texture_path);
+        auto handle = gp_descriptor_heap->Register(main_texture);
+        gp_material_handles.emplace_back(handle);
     }
 
     gp_rootsignature = new RootSignature();
@@ -96,20 +133,29 @@ void Scene::Update() {
 }
 
 void Scene::Draw() {
-    rotateY += 0.002f;
+    //rotateY += 0.0002f;
     auto currentindex = gp_engine->CurrentBackBufferIndex(); // 現在のフレーム番号を取得する
     auto currenttransform = gp_constantbuffer[currentindex]->GetPtr<Transform>(); // 現在のフレーム番号に対応する定数バッファを取得
     currenttransform->world = DirectX::XMMatrixRotationY(rotateY); // Y軸で回転させる
     auto commandlist = gp_engine->CommandList(); // コマンドリスト
-    auto vertexbufferview = gp_vertexbuffer->View(); // 頂点バッファビュー
-    auto indexbufferview = gp_indexbuffer->View(); // インデックスバッファビュー
+    auto material_heap = gp_descriptor_heap->GetHeap(); // ディスクリプタヒープ
 
-    commandlist->SetGraphicsRootSignature(gp_rootsignature->Get()); // ルートシグネチャをセット
-    commandlist->SetPipelineState(gp_pipelinestate->Get()); // パイプラインステートをセット
-    commandlist->SetGraphicsRootConstantBufferView(0, gp_constantbuffer[currentindex]->GetAddress()); // 定数バッファをセット
-    commandlist->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST); // 三角形を描画する設定にする
-    commandlist->IASetVertexBuffers(0, 1, &vertexbufferview); // 頂点バッファをスロット0番を使って1個だけ設定する
-    commandlist->IASetIndexBuffer(&indexbufferview); // インデックスバッファをセットする
+    // メッシュの数だけインデックス分の描画を処理を行う処理を回す
+    for (size_t i = 0; i < g_meshes.size(); ++i) {
+        auto vertexbufferview = gp_vertex_buffers[i]->View(); // 頂点バッファビュー
+        auto indexbufferview = gp_index_buffers[i]->View(); // インデックスバッファビュー
 
-    commandlist->DrawIndexedInstanced(6, 1, 0, 0, 0); // 3個の頂点を描画する
+        commandlist->SetGraphicsRootSignature(gp_rootsignature->Get()); // ルートシグネチャをセット
+        commandlist->SetPipelineState(gp_pipelinestate->Get()); // パイプラインステートをセット
+        commandlist->SetGraphicsRootConstantBufferView(0, gp_constantbuffer[currentindex]->GetAddress()); // 定数バッファをセット
+
+        commandlist->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST); // 三角形を描画する設定にする
+        commandlist->IASetVertexBuffers(0, 1, &vertexbufferview); // 頂点バッファをスロット0番を使って1個だけ設定する
+        commandlist->IASetIndexBuffer(&indexbufferview); // インデックスバッファをセットする
+
+        commandlist->SetDescriptorHeaps(1, &material_heap); // 使用するディスクリプタヒープをセット
+        commandlist->SetGraphicsRootDescriptorTable(1, gp_material_handles[i]->m_handle_GPU); // そのメッシュに対応するディスクリプタテーブルをセット
+
+        commandlist->DrawIndexedInstanced(g_meshes[i].indices.size(), 1, 0, 0, 0); // インデックスの数分を描画する
+    }
 }

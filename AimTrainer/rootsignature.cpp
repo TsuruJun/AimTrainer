@@ -1,6 +1,7 @@
 #include "rootsignature.h"
 #include "engine.h"
 #include <d3dx12.h>
+using namespace std;
 
 RootSignature::RootSignature() {
     auto flag = D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT; // アプリケーションの入力アセンブラを使用する
@@ -8,8 +9,12 @@ RootSignature::RootSignature() {
     flag |= D3D12_ROOT_SIGNATURE_FLAG_DENY_HULL_SHADER_ROOT_ACCESS; // ハルシェーダのルートシグネチャへのアクセスを拒否する
     flag |= D3D12_ROOT_SIGNATURE_FLAG_DENY_GEOMETRY_SHADER_ROOT_ACCESS; // ジオメトリシェーダのルートシグネチャへのアクセスを拒否する
 
-    CD3DX12_ROOT_PARAMETER rootparam[1] = {};
+    CD3DX12_ROOT_PARAMETER rootparam[2] = {}; // 定数バッファとテクスチャの2
     rootparam[0].InitAsConstantBufferView(0, 0, D3D12_SHADER_VISIBILITY_ALL); // b0の定数バッファを設定、全てのシェーダから見えるようにする
+
+    CD3DX12_DESCRIPTOR_RANGE table_range[1] = {}; // ディスクリプタテーブル
+    table_range[0].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, 0); // シェーダーリソースビュー
+    rootparam[1].InitAsDescriptorTable(size(table_range), table_range, D3D12_SHADER_VISIBILITY_ALL);
 
     // スタティックサンプラの設定
     auto sampler = CD3DX12_STATIC_SAMPLER_DESC(0, D3D12_FILTER_MIN_MAG_POINT_MIP_LINEAR);

@@ -21,3 +21,9 @@ struct alignas(256) Transform {
     DirectX::XMMATRIX view; // ビュー行列
     DirectX::XMMATRIX proj; // 投影行列
 };
+
+struct Mesh {
+    std::vector<Vertex> vertices; // 頂点データの配列
+    std::vector<uint32_t> indices; // インデックスの配列
+    std::wstring diffusemap; // テクスチャのファイルパス
+};
