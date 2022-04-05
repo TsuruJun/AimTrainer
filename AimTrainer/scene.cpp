@@ -27,7 +27,7 @@ DescriptorHeap *gp_descriptor_heap;
 
 float rotateY = 0.0f;
 
-const char *gp_model_file = "C:\\Users\\TsuruJun\\source\\repos\\Model\\fbx\\Alicia\\FBX\\Alicia_solid_Unity.FBX";
+const char *gp_model_file = "C:\\Users\\TsuruJun\\source\\repos\\Model\\fbx\\enemy_bot.fbx";
 vector<Mesh> g_meshes; // メッシュの配列
 vector<VertexBuffer *> gp_vertex_buffers; // メッシュの数分の頂点バッファ
 vector<IndexBuffer *> gp_index_buffers; // メッシュの数分のインデックスバッファ
@@ -77,8 +77,8 @@ bool Scene::Init() {
         gp_index_buffers.emplace_back(p_index_buffer);
     }
 
-    auto eyeposition = XMVectorSet(0.0f, 100.0, 100.0, 0.0f); // 視点の位置
-    auto targetposition = XMVectorSet(0.0f, 120.0, 0.0, 0.0f);; // 視点を向ける座標
+    auto eyeposition = XMVectorSet(0.0f, 0.0, 10.0, 0.0f); // 視点の位置
+    auto targetposition = XMVectorSet(0.0f, 0.0, 0.0, 0.0f);; // 視点を向ける座標
     auto upward = XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f); // 上方向を表すベクトル
     constexpr auto fov = XMConvertToRadians(60); // 視野角
     auto aspect = static_cast<float>(WINDOW_WIDTH) / static_cast<float>(WINDOW_HEIGHT); // アスペクト比

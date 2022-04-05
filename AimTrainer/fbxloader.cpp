@@ -7,6 +7,19 @@ using namespace fbxsdk;
 using namespace std;
 using namespace DirectX;
 
+// string(マルチバイト文字列)からwstring(ワイド文字列)を得る
+wstring ToWideString(const string &str) {
+    auto num1 = MultiByteToWideChar(CP_ACP, MB_PRECOMPOSED | MB_ERR_INVALID_CHARS, str.c_str(), -1, nullptr, 0);
+
+    wstring wstr;
+    wstr.resize(num1);
+
+    auto num2 = MultiByteToWideChar(CP_ACP, MB_PRECOMPOSED | MB_ERR_INVALID_CHARS, str.c_str(), -1, &wstr[0], num1);
+
+    assert(num1 == num2);
+    return wstr;
+}
+
 /// <summary>
 /// Fbxファイルをロード
 /// </summary>
@@ -61,18 +74,29 @@ bool FbxLoader::FbxLoad(const char *file_name) {
 
     // Mesh取得
     int meshcount = mp_fbx_scene->GetSrcObjectCount<FbxMesh>();
-    vector<FbxMesh *>p_fbx_meshes; // Fbxファイルから取り出したMeshの格納場所
-    p_fbx_meshes.resize(meshcount);
+    vector<FbxMesh *>fbx_meshes; // Fbxファイルから取り出したMeshの格納場所
+    fbx_meshes.resize(meshcount);
+
+    // Material取得
+    vector<FbxSurfaceMaterial *> fbx_materials;
+    fbx_materials.resize(meshcount);
+
     for (int i = 0; i < meshcount; ++i) {
         FbxMesh *p_mesh = mp_fbx_scene->GetSrcObject<FbxMesh>(i);
-        p_fbx_meshes[i] = p_mesh;
+        fbx_meshes[i] = p_mesh;
+
+        FbxSurfaceMaterial *p_material = mp_fbx_scene->GetSrcObject<FbxSurfaceMaterial>(i);
+        fbx_materials[i] = p_material;
     }
 
     m_meshes.clear();
     m_meshes.resize(meshcount);
     // 各メッシュを対象に、DirectXで使えるように変換
-    for (size_t i = 0; i < p_fbx_meshes.size(); ++i) {
-        FbxMesh *p_mesh = p_fbx_meshes[i];
+    for (size_t i = 0; i < fbx_meshes.size(); ++i) {
+        // メッシュ取得
+        FbxMesh *p_mesh = fbx_meshes[i];
+        // マテリアル取得
+        FbxSurfaceMaterial *p_material = fbx_materials[i];
 
         Vertex vertex = {};
 
@@ -96,6 +120,17 @@ bool FbxLoader::FbxLoad(const char *file_name) {
         // UVSet取得
         p_mesh->GetPolygonVertexUVs(uvset_names.GetStringAt(0), uvs);
 
+        // カラー取得
+        FbxDouble3 color;
+        FbxDouble factor;
+        if (p_material->GetClassId().Is(FbxSurfaceLambert::ClassId)) {
+            FbxProperty prop = p_material->FindProperty(FbxSurfaceMaterial::sDiffuse); // Diffuseプロパティを取得
+            color = prop.Get<FbxDouble3>();
+
+            prop = p_material->FindProperty(FbxSurfaceMaterial::sDiffuseFactor); // DiffuseFactor(重み)プロパティを取得
+            factor = prop.Get<FbxDouble>();
+        }
+
         // TODO: tangentの取得方法が判明したら処理を記述する
 
         // 頂点数取得
@@ -116,6 +151,7 @@ bool FbxLoader::FbxLoad(const char *file_name) {
             vertex.position = XMFLOAT3(-(static_cast<float>(position[0])), static_cast<float>(position[2]), -static_cast<float>(position[1]));
             vertex.normal = XMFLOAT3(-(static_cast<float>(*normals[0])), static_cast<float>(*normals[1]), -static_cast<float>(*normals[2]));
             vertex.uv = XMFLOAT2(static_cast<float>(*uvs[0]), (1.0f - static_cast<float>(*uvs[1])));
+            vertex.color = XMFLOAT4(static_cast<float>(color[0]), static_cast<float>(color[1]), static_cast<float>(color[2]), static_cast<float>(factor));
 
             // 追加
             m_meshes[i].vertices[j] = vertex;
@@ -129,6 +165,28 @@ bool FbxLoader::FbxLoad(const char *file_name) {
             m_meshes[i].indices[j * 3] = j * 3 + 2;
             m_meshes[i].indices[j * 3 + 1] = j * 3 + 1;
             m_meshes[i].indices[j * 3 + 2] = j * 3 + 0;
+        }
+
+        // テクスチャ取得
+        FbxProperty prop = p_material->FindProperty(FbxSurfaceMaterial::sDiffuse); // Diffuseプロパティを取得
+        FbxFileTexture *p_texture = nullptr;
+
+        // テクスチャ読み込み
+        int texture_count = prop.GetSrcObjectCount<FbxFileTexture>();
+        if (texture_count > 0) {
+            p_texture = prop.GetSrcObject<FbxFileTexture>(0);
+        } else {
+            // FbxLayeredTextureからFbxFiletextureを取得
+            int layer_count = prop.GetSrcObjectCount<FbxLayeredTexture>();
+            if (layer_count > 0) {
+                p_texture = prop.GetSrcObject<FbxFileTexture>(0);
+            }
+        }
+
+        // テクスチャパス取得
+        if (p_texture != nullptr) {
+            string file_path = p_texture->GetFileName();
+            m_meshes[i].diffusemap = ToWideString(file_path);
         }
     }
 
