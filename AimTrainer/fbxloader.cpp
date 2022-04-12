@@ -215,7 +215,17 @@ void FbxLoader::Destroy() {
     }
 }
 
+/// <summary>
+/// 読み込んだfbxファイルを渡す
+/// </summary>
+/// <returns></returns>
 vector<Mesh> FbxLoader::GetMeshes() {
     return m_meshes;
 }
 
+/// <summary>
+/// 読み込んだfbxを保持していた変数をクリアする
+/// </summary>
+void FbxLoader::ClearMeshes() {
+    m_meshes.clear();
+}

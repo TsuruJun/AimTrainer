@@ -23,6 +23,7 @@
     <ClInclude Include="comptr.h" />
     <ClInclude Include="constantbuffer.h" />
     <ClInclude Include="descriptorheap.h" />
+    <ClInclude Include="enemybot.h" />
     <ClInclude Include="engine.h" />
     <ClInclude Include="fbxloader.h" />
     <ClInclude Include="indexbuffer.h" />
@@ -37,6 +38,7 @@
     <ClCompile Include="app.cpp" />
     <ClCompile Include="constantbuffer.cpp" />
     <ClCompile Include="descriptorheap.cpp" />
+    <ClCompile Include="enemybot.cpp" />
     <ClCompile Include="engine.cpp" />
     <ClCompile Include="fbxloader.cpp" />
     <ClCompile Include="indexbuffer.cpp" />

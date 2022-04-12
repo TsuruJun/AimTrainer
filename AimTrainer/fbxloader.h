@@ -10,7 +10,8 @@ public:
     bool FbxLoad(const char *file_name);
     void Destroy();
 
-    std::vector<Mesh> GetMeshes();
+    std::vector<Mesh> GetMeshes(); // TODO: 将来的にはアドレスを返すようにしたい
+    void ClearMeshes();
 
 private:
     fbxsdk::FbxManager *mp_fbx_manager = nullptr;

@@ -12,6 +12,7 @@
 #include <filesystem>
 #include "descriptorheap.h"
 #include "texture2D.h"
+#include "enemybot.h"
 using namespace DirectX;
 using namespace std;
 
@@ -24,8 +25,10 @@ IndexBuffer *gp_indexbuffer;
 RootSignature *gp_rootsignature;
 PipelineState *gp_pipelinestate;
 DescriptorHeap *gp_descriptor_heap;
+EnemyBot g_enemy_bot{};
 
-float rotateY = 0.0f;
+float rotateX = 0.0f;
+const char *gp_mode = "+";
 
 const char *gp_model_file = "C:\\Users\\TsuruJun\\source\\repos\\Model\\fbx\\enemy_bot.fbx";
 vector<Mesh> g_meshes; // メッシュの配列
@@ -40,13 +43,8 @@ wstring ReplaceExtension(const wstring &origin, const char *extention) {
 }
 
 bool Scene::Init() {
-    // Fbxモデル読み込み
-    FbxLoader loader;
-    if (!loader.FbxLoad(gp_model_file)) {
-        printf("Fbxモデルの読み込みに失敗");
-        return false;
-    }
-    g_meshes = loader.GetMeshes();
+    // EnemyBot読み込み
+    g_enemy_bot.EnemyLoad(gp_model_file, g_meshes);
 
     // メッシュの数だけ頂点バッファを用意する
     gp_vertex_buffers.reserve(g_meshes.size());
@@ -130,13 +128,16 @@ bool Scene::Init() {
 }
 
 void Scene::Update() {
+    g_enemy_bot.InitXYZ(0.0f, 0.0f, -10.0f);
+
+    // EnemyBotを往復させる
+    auto currentindex = gp_engine->CurrentBackBufferIndex(); // 現在のフレーム番号を取得する
+    auto currenttransform = gp_constantbuffer[currentindex]->GetPtr<Transform>(); // 現在のフレーム番号に対応する定数バッファを取得
+    g_enemy_bot.RoundTripX(0.0025f, 8.0f, currenttransform);
 }
 
 void Scene::Draw() {
-    //rotateY += 0.0002f;
     auto currentindex = gp_engine->CurrentBackBufferIndex(); // 現在のフレーム番号を取得する
-    auto currenttransform = gp_constantbuffer[currentindex]->GetPtr<Transform>(); // 現在のフレーム番号に対応する定数バッファを取得
-    currenttransform->world = DirectX::XMMatrixRotationY(rotateY); // Y軸で回転させる
     auto commandlist = gp_engine->CommandList(); // コマンドリスト
     auto material_heap = gp_descriptor_heap->GetHeap(); // ディスクリプタヒープ
 
