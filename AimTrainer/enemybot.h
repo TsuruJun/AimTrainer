@@ -5,10 +5,8 @@
 
 class EnemyBot {
 public:
-    bool EnemyLoad(const char *p_file_path, std::vector<Mesh> &meshes);
+    EnemyBot(float x, float y, float z);
     void RoundTripX(float offset_x, float range, Transform *transform);
-
-    void InitXYZ(float x, float y, float z);
 
 private:
     const char *mp_mode = "+";

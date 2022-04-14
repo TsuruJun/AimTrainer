@@ -4,21 +4,15 @@
 using namespace std;
 
 /// <summary>
-/// EnemyBotをロードする関数
+/// コンストラクタでEnemyBotの初期位置を定義
 /// </summary>
-/// <param name="p_file_path">EnemyBotのファイルパス</param>
-/// <param name="meshes">読み込んだモデルを渡すための受け皿</param>
-/// <returns>true: 成功 false: 失敗</returns>
-bool EnemyBot::EnemyLoad(const char *p_file_path, vector<Mesh> &meshes) {
-    FbxLoader loader;
-    if (!loader.FbxLoad(p_file_path)) {
-        printf("EnemyBotの読み込みに失敗");
-        return false;
-    }
-    meshes = loader.GetMeshes();
-    loader.ClearMeshes();
-
-    return true;
+/// <param name="x"></param>
+/// <param name="y"></param>
+/// <param name="z"></param>
+EnemyBot::EnemyBot(float x, float y, float z) {
+    m_current_x = x;
+    m_current_y = y;
+    m_current_z = z;
 }
 
 /// <summary>
@@ -42,18 +36,4 @@ void EnemyBot::RoundTripX(float offset_x, float range, Transform *transform) {
     }
 
     transform->world = DirectX::XMMatrixTranslation(m_current_x, m_current_y, m_current_z); // X方向に移動
-}
-
-/// <summary>
-/// EnemyBotの座標が初期化されていないとき、初期化する
-/// </summary>
-/// <param name="x">x座標</param>
-/// <param name="y">y座標</param>
-/// <param name="z">z座標</param>
-void EnemyBot::InitXYZ(float x, float y, float z) {
-    if (m_current_x == NULL && m_current_y == NULL && m_current_z == NULL) {
-        m_current_x = x;
-        m_current_y = y;
-        m_current_z = z;
-    }
 }
