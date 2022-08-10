@@ -3,17 +3,17 @@
 #include "scene.h"
 
 HINSTANCE g_hinst;
-HWND  g_hwnd = NULL;
+HWND g_hwnd = NULL;
 
-// ƒEƒBƒ“ƒhƒE‚Ì¶¬ŠÖ”
+// ã‚¦ã‚£ãƒ³ãƒ‰ã‚¦ã®ç”Ÿæˆé–¢æ•°
 LRESULT CALLBACK WindowProc(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam) {
-    // ƒEƒBƒ“ƒhƒEI—¹‚Ìˆ—
+    // ã‚¦ã‚£ãƒ³ãƒ‰ã‚¦çµ‚äº†æ™‚ã®å‡¦ç†
     if (msg == WM_DESTROY) {
         PostQuitMessage(0);
         return 0;
     }
 
-    // ’Êí‚Ìˆ—
+    // é€šå¸¸ã®å‡¦ç†
     return DefWindowProc(hwnd, msg, wparam, lparam);
 }
 
@@ -23,7 +23,7 @@ void InitWindow(const TCHAR *appname) {
         return;
     }
 
-    // ƒEƒBƒ“ƒhƒE‚Ìİ’è
+    // ã‚¦ã‚£ãƒ³ãƒ‰ã‚¦ã®è¨­å®š
     WNDCLASSEX wndclass = {};
     wndclass.cbSize = sizeof(WNDCLASSEX);
     wndclass.style = CS_HREDRAW | CS_VREDRAW;
@@ -35,25 +35,25 @@ void InitWindow(const TCHAR *appname) {
     wndclass.lpszClassName = appname;
     wndclass.hIconSm = LoadIcon(g_hinst, IDI_APPLICATION);
 
-    // ƒEƒBƒ“ƒhƒEƒNƒ‰ƒX‚Ì“o˜^
+    // ã‚¦ã‚£ãƒ³ãƒ‰ã‚¦ã‚¯ãƒ©ã‚¹ã®ç™»éŒ²
     RegisterClassEx(&wndclass);
 
-    // ƒEƒBƒ“ƒhƒEƒTƒCƒY‚Ìİ’è
+    // ã‚¦ã‚£ãƒ³ãƒ‰ã‚¦ã‚µã‚¤ã‚ºã®è¨­å®š
     RECT rect = {};
     rect.right = static_cast<LONG>(WINDOW_WIDTH);
     rect.bottom = static_cast<LONG>(WINDOW_HEIGHT);
 
-    // ƒEƒBƒ“ƒhƒEƒTƒCƒY‚ğ’²®
+    // ã‚¦ã‚£ãƒ³ãƒ‰ã‚¦ã‚µã‚¤ã‚ºã‚’èª¿æ•´
     auto style = WS_OVERLAPPED | WS_CAPTION | WS_SYSMENU;
     AdjustWindowRect(&rect, style, false);
 
-    // ƒEƒBƒ“ƒhƒE‚Ì¶¬
+    // ã‚¦ã‚£ãƒ³ãƒ‰ã‚¦ã®ç”Ÿæˆ
     g_hwnd = CreateWindowEx(0, appname, appname, style, CW_USEDEFAULT, CW_USEDEFAULT, rect.right - rect.left, rect.bottom - rect.top, nullptr, nullptr, g_hinst, nullptr);
 
-    // ƒEƒBƒ“ƒhƒE‚ğ•\¦
+    // ã‚¦ã‚£ãƒ³ãƒ‰ã‚¦ã‚’è¡¨ç¤º
     ShowWindow(g_hwnd, SW_SHOWNORMAL);
 
-    // ƒEƒBƒ“ƒhƒE‚ÉƒtƒH[ƒJƒX‚·‚é
+    // ã‚¦ã‚£ãƒ³ãƒ‰ã‚¦ã«ãƒ•ã‚©ãƒ¼ã‚«ã‚¹ã™ã‚‹
     SetFocus(g_hwnd);
 }
 
@@ -73,21 +73,21 @@ void MainLoop() {
 }
 
 void StartApp(const TCHAR *appname) {
-    // ƒEƒBƒ“ƒhƒE¶¬
+    // ã‚¦ã‚£ãƒ³ãƒ‰ã‚¦ç”Ÿæˆ
     InitWindow(appname);
 
-    // •`‰æƒGƒ“ƒWƒ“‚Ì‰Šú‰»‚ğs‚¤
+    // æç”»ã‚¨ãƒ³ã‚¸ãƒ³ã®åˆæœŸåŒ–ã‚’è¡Œã†
     gp_engine = new Engine();
     if (!gp_engine->Init(g_hwnd, WINDOW_WIDTH, WINDOW_HEIGHT)) {
         return;
     }
 
-    // ƒV[ƒ“‰Šú‰»
+    // ã‚·ãƒ¼ãƒ³åˆæœŸåŒ–
     gp_scene = new Scene();
     if (!gp_scene->Init()) {
         return;
     }
 
-    // ƒƒCƒ“ˆ—ƒ‹[ƒv
+    // ãƒ¡ã‚¤ãƒ³å‡¦ç†ãƒ«ãƒ¼ãƒ—
     MainLoop();
 }

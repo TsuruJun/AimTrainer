@@ -14,13 +14,13 @@ public:
 
 class DescriptorHeap {
 public:
-    DescriptorHeap(); // ƒRƒ“ƒXƒgƒ‰ƒNƒ^‚Åì¬‚·‚é
-    ID3D12DescriptorHeap *GetHeap(); // ƒfƒBƒXƒNƒŠƒvƒ^ƒq[ƒv‚ğ•Ô‚·
-    DescriptorHandle *Register(Texture2D *texture); // ƒeƒNƒXƒ`ƒƒ‚ğƒfƒBƒXƒNƒŠƒvƒ^ƒq[ƒv‚É“o˜^‚µAƒnƒ“ƒhƒ‹‚ğ•Ô‚·
+    DescriptorHeap(); // ã‚³ãƒ³ã‚¹ãƒˆãƒ©ã‚¯ã‚¿ã§ä½œæˆã™ã‚‹
+    ID3D12DescriptorHeap *GetHeap(); // ãƒ‡ã‚£ã‚¹ã‚¯ãƒªãƒ—ã‚¿ãƒ’ãƒ¼ãƒ—ã‚’è¿”ã™
+    DescriptorHandle *Register(Texture2D *texture); // ãƒ†ã‚¯ã‚¹ãƒãƒ£ã‚’ãƒ‡ã‚£ã‚¹ã‚¯ãƒªãƒ—ã‚¿ãƒ’ãƒ¼ãƒ—ã«ç™»éŒ²ã—ã€ãƒãƒ³ãƒ‰ãƒ«ã‚’è¿”ã™
 
 private:
-    bool m_isvalid = false; // ¶¬‚É¬Œ÷‚µ‚½‚©‚Ç‚¤‚©
+    bool m_isvalid = false; // ç”Ÿæˆã«æˆåŠŸã—ãŸã‹ã©ã†ã‹
     UINT m_increment_size = 0;
-    ComPtr<ID3D12DescriptorHeap> mp_heap = nullptr; // ƒfƒBƒXƒNƒŠƒvƒ^ƒq[ƒv–{‘Ì
-    std::vector<DescriptorHandle *> mp_handles; // “o˜^‚³‚ê‚Ä‚¢‚éƒnƒ“ƒhƒ‹
+    ComPtr<ID3D12DescriptorHeap> mp_heap = nullptr; // ãƒ‡ã‚£ã‚¹ã‚¯ãƒªãƒ—ã‚¿ãƒ’ãƒ¼ãƒ—æœ¬ä½“
+    std::vector<DescriptorHandle *> mp_handles; // ç™»éŒ²ã•ã‚Œã¦ã„ã‚‹ãƒãƒ³ãƒ‰ãƒ«
 };

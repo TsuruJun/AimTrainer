@@ -1,71 +1,69 @@
 #include "scene.h"
-#include "engine.h"
 #include "app.h"
-#include <d3dx12.h>
-#include "sharedstruct.h"
-#include "vertexbuffer.h"
 #include "constantbuffer.h"
-#include "rootsignature.h"
-#include "pipelinestate.h"
-#include "indexbuffer.h"
-#include "fbxloader.h"
-#include <filesystem>
 #include "descriptorheap.h"
+#include "engine.h"
+#include "fbxloader.h"
+#include "indexbuffer.h"
+#include "pipelinestate.h"
+#include "rootsignature.h"
+#include "sharedstruct.h"
 #include "texture2D.h"
-#include "enemybot.h"
+#include "vertexbuffer.h"
+#include <d3dx12.h>
+#include <filesystem>
 using namespace DirectX;
 using namespace std;
 
 namespace fs = filesystem;
 
+// èª­ã¿è¾¼ã‚€ãƒ¢ãƒ‡ãƒ«ã‚’ãƒªã‚¹ãƒˆåŒ–
+vector<const char *> model_list{
+    "C:\\Users\\TsuruJun\\source\\repos\\Model\\fbx\\enemy_bot.fbx",
+    "C:\\Users\\TsuruJun\\source\\repos\\Model\\fbx\\bullet.fbx",
+    "C:\\Users\\TsuruJun\\source\\repos\\Model\\fbx\\sight.fbx"};
+
 Scene *gp_scene;
 VertexBuffer *gp_vertexbuffer;
-ConstantBuffer *gp_constantbuffer[Engine::FRAME_BUFFER_COUNT];
+vector<ConstantBuffer *> gp_constantbuffer{Engine::FRAME_BUFFER_COUNT * model_list.size()};
 IndexBuffer *gp_indexbuffer;
 RootSignature *gp_rootsignature;
 PipelineState *gp_pipelinestate;
 DescriptorHeap *gp_descriptor_heap;
-EnemyBot *gp_enemy_bot;
 
 float rotateX = 0.0f;
 const char *gp_mode = "+";
 
-vector<vector<Mesh>> g_objects; // ƒƒbƒVƒ…‚Ì”z—ñ
-vector<vector<VertexBuffer *>> gp_vertex_buffers; // ƒƒbƒVƒ…‚Ì”•ª‚Ì’¸“_ƒoƒbƒtƒ@
-vector<vector<IndexBuffer *>> gp_index_buffers; // ƒƒbƒVƒ…‚Ì”•ª‚ÌƒCƒ“ƒfƒbƒNƒXƒoƒbƒtƒ@
-vector<vector<DescriptorHandle *>> gp_material_handles; // ƒeƒNƒXƒ`ƒƒ—p‚Ìƒnƒ“ƒhƒ‹ˆê——
+vector<vector<Mesh>> g_objects; // ãƒ¡ãƒƒã‚·ãƒ¥ã®é…åˆ—
+vector<vector<VertexBuffer *>> gp_vertex_buffers; // ãƒ¡ãƒƒã‚·ãƒ¥ã®æ•°åˆ†ã®é ‚ç‚¹ãƒãƒƒãƒ•ã‚¡
+vector<vector<IndexBuffer *>> gp_index_buffers; // ãƒ¡ãƒƒã‚·ãƒ¥ã®æ•°åˆ†ã®ã‚¤ãƒ³ãƒ‡ãƒƒã‚¯ã‚¹ãƒãƒƒãƒ•ã‚¡
+vector<vector<DescriptorHandle *>> gp_material_handles; // ãƒ†ã‚¯ã‚¹ãƒãƒ£ç”¨ã®ãƒãƒ³ãƒ‰ãƒ«ä¸€è¦§
 
-// Šg’£q‚ğ’u‚«Š·‚¦‚éˆ—
+// æ‹¡å¼µå­ã‚’ç½®ãæ›ãˆã‚‹å‡¦ç†
 wstring ReplaceExtension(const wstring &origin, const char *extention) {
     fs::path path = origin.c_str();
     return path.replace_extension(extention).c_str();
 }
 
 bool Scene::Init() {
-    gp_enemy_bot = new EnemyBot(0.0f, 0.0f, -10.0f);
     FbxLoader loader;
 
-    // “Ç‚İ‚Şƒ‚ƒfƒ‹‚ğƒŠƒXƒg‰»
-    vector<const char *> model_list{
-        "C:\\Users\\TsuruJun\\source\\repos\\Model\\fbx\\enemy_bot.fbx",
-        "C:\\Users\\TsuruJun\\source\\repos\\Model\\fbx\\sight.fbx"};
-
-    // Šeƒoƒbƒtƒ@‚ÌƒTƒCƒY‚ğ‰Šú‰»
+    // å„ãƒãƒƒãƒ•ã‚¡ã®ã‚µã‚¤ã‚ºã‚’åˆæœŸåŒ–
     gp_vertex_buffers.resize(model_list.size());
     gp_index_buffers.resize(model_list.size());
     gp_material_handles.resize(model_list.size());
 
-    // ƒ‚ƒfƒ‹‚²‚Æ‚É“Ç‚İ‚Ş
+    // ãƒ¢ãƒ‡ãƒ«ã”ã¨ã«èª­ã¿è¾¼ã‚€
     for (int count = 0; count < model_list.size(); ++count) {
-        // ƒ‚ƒfƒ‹“Ç‚İ‚İ
+        // ãƒ¢ãƒ‡ãƒ«èª­ã¿è¾¼ã¿
         if (!loader.FbxLoad(model_list[count])) {
-            printf("EnemyBot‚Ì“Ç‚İ‚İ‚É¸”s");
+            printf("ãƒ¢ãƒ‡ãƒ«ã®èª­ã¿è¾¼ã¿ã«å¤±æ•—");
             return false;
         }
         g_objects.emplace_back(loader.GetMeshes());
         loader.ClearMeshes();
 
-        // ƒƒbƒVƒ…‚Ì”‚¾‚¯’¸“_ƒoƒbƒtƒ@‚ğ—pˆÓ‚·‚é
+        // ãƒ¡ãƒƒã‚·ãƒ¥ã®æ•°ã ã‘é ‚ç‚¹ãƒãƒƒãƒ•ã‚¡ã‚’ç”¨æ„ã™ã‚‹
         gp_vertex_buffers[count].reserve(g_objects[count].size());
         for (size_t i = 0; i < g_objects[count].size(); ++i) {
             auto size = sizeof(Vertex) * g_objects[count][i].vertices.size();
@@ -73,62 +71,69 @@ bool Scene::Init() {
             auto vertices = g_objects[count][i].vertices.data();
             auto p_vertex_buffer = new VertexBuffer(size, stride, vertices);
             if (!p_vertex_buffer->IsValid()) {
-                printf("’¸“_ƒoƒbƒtƒ@‚Ì¶¬‚É¸”s\n");
+                printf("é ‚ç‚¹ãƒãƒƒãƒ•ã‚¡ã®ç”Ÿæˆã«å¤±æ•—\n");
                 return false;
             }
 
             gp_vertex_buffers[count].emplace_back(p_vertex_buffer);
         }
 
-        // ƒƒbƒVƒ…‚Ì”‚¾‚¯ƒCƒ“ƒfƒbƒNƒXƒoƒbƒtƒ@‚ğ—pˆÓ‚·‚é
+        // ãƒ¡ãƒƒã‚·ãƒ¥ã®æ•°ã ã‘ã‚¤ãƒ³ãƒ‡ãƒƒã‚¯ã‚¹ãƒãƒƒãƒ•ã‚¡ã‚’ç”¨æ„ã™ã‚‹
         gp_index_buffers[count].reserve(g_objects[count].size());
         for (size_t i = 0; i < g_objects[count].size(); ++i) {
             auto size = sizeof(uint32_t) * g_objects[count][i].indices.size();
             auto indices = g_objects[count][i].indices.data();
             auto p_index_buffer = new IndexBuffer(size, indices);
             if (!p_index_buffer->IsValid()) {
-                printf("ƒCƒ“ƒfƒbƒNƒXƒoƒbƒtƒ@‚Ì¶¬‚É¸”s");
+                printf("ã‚¤ãƒ³ãƒ‡ãƒƒã‚¯ã‚¹ãƒãƒƒãƒ•ã‚¡ã®ç”Ÿæˆã«å¤±æ•—");
                 return false;
             }
 
             gp_index_buffers[count].emplace_back(p_index_buffer);
         }
 
-        // ƒ}ƒeƒŠƒAƒ‹“Ç‚İ‚İ
+        // ãƒãƒ†ãƒªã‚¢ãƒ«èª­ã¿è¾¼ã¿
         gp_material_handles[count].clear();
         gp_descriptor_heap = new DescriptorHeap();
 
         for (size_t i = 0; i < g_objects[count].size(); ++i) {
-            auto texture_path = ReplaceExtension(g_objects[count][i].diffusemap, "tga"); // // ‚à‚Æ‚à‚Æ‚Ípsd‚É‚È‚Á‚Ä‚¢‚Ä‚¿‚å‚Á‚Æ‚ß‚ñ‚Ç‚©‚Á‚½‚Ì‚ÅA“¯«‚³‚ê‚Ä‚¢‚étga‚ğ“Ç‚İ‚Ş
+            auto texture_path = ReplaceExtension(g_objects[count][i].diffusemap, "tga"); // // ã‚‚ã¨ã‚‚ã¨ã¯psdã«ãªã£ã¦ã„ã¦ã¡ã‚‡ã£ã¨ã‚ã‚“ã©ã‹ã£ãŸã®ã§ã€åŒæ¢±ã•ã‚Œã¦ã„ã‚‹tgaã‚’èª­ã¿è¾¼ã‚€
             auto main_texture = Texture2D::Get(texture_path);
             auto handle = gp_descriptor_heap->Register(main_texture);
             gp_material_handles[count].emplace_back(handle);
         }
     }
 
-    auto eyeposition = XMVectorSet(0.0f, 0.0f, 10.0f, 0.0f); // ‹“_‚ÌˆÊ’u
-    auto targetposition = XMVectorSet(0.0f, 0.0f, 0.0f, 0.0f);; // ‹“_‚ğŒü‚¯‚éÀ•W
-    auto upward = XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f); // ã•ûŒü‚ğ•\‚·ƒxƒNƒgƒ‹
-    constexpr auto fov = XMConvertToRadians(60); // ‹–ìŠp
-    auto aspect = static_cast<float>(WINDOW_WIDTH) / static_cast<float>(WINDOW_HEIGHT); // ƒAƒXƒyƒNƒg”ä
+    // ã‚«ãƒ¡ãƒ©è¨­å®š
+    auto eyeposition = XMVectorSet(0.0f, 0.0f, 10.0f, 0.0f); // è¦–ç‚¹ã®ä½ç½®
+    auto targetposition = XMVectorSet(0.0f, 0.0f, 0.0f, 0.0f);// è¦–ç‚¹ã‚’å‘ã‘ã‚‹åº§æ¨™
+    auto upward = XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f); // ä¸Šæ–¹å‘ã‚’è¡¨ã™ãƒ™ã‚¯ãƒˆãƒ«
+    constexpr auto fov = XMConvertToRadians(100.0f); // è¦–é‡è§’
+    auto aspect = static_cast<float>(WINDOW_WIDTH) / static_cast<float>(WINDOW_HEIGHT); // ã‚¢ã‚¹ãƒšã‚¯ãƒˆæ¯”
 
-    for (size_t i = 0; i < Engine::FRAME_BUFFER_COUNT; ++i) {
+    for (size_t i = 0; i < Engine::FRAME_BUFFER_COUNT * model_list.size(); ++i) {
         gp_constantbuffer[i] = new ConstantBuffer(sizeof(Transform));
         if (!gp_constantbuffer[i]->IsValid()) {
-            printf("•ÏŠ·s—ñ—p’è”ƒoƒbƒtƒ@‚Ì¶¬‚É¸”s");
+            printf("å¤‰æ›è¡Œåˆ—ç”¨å®šæ•°ãƒãƒƒãƒ•ã‚¡ã®ç”Ÿæˆã«å¤±æ•—");
             return false;
         }
 
-        // •ÏŠ·s—ñ‚Ì“o˜^
+        // å¤‰æ›è¡Œåˆ—ã®ç™»éŒ²
         auto ptr = gp_constantbuffer[i]->GetPtr<Transform>();
-        ptr->world = XMMatrixIdentity();
+        if (i % model_list.size() == 0) { // enemy_bot
+            ptr->world = XMMatrixIdentity() * XMMatrixTranslation(0, 0, -10.0f);
+        } else if (i % model_list.size() == 1) { // bullet
+            ptr->world = XMMatrixIdentity() * XMMatrixTranslation(0, 0, 4.0f);
+        } else { // sight
+            ptr->world = XMMatrixIdentity() * XMMatrixTranslation(0, 0, 8.0f);
+        }
         ptr->view = XMMatrixLookAtRH(eyeposition, targetposition, upward);
         ptr->proj = XMMatrixPerspectiveFovRH(fov, aspect, 0.3f, 1000.f);
     }
 
     gp_rootsignature = new RootSignature();
     if (!gp_rootsignature->IsValid()) {
-        printf("ƒ‹[ƒgƒVƒOƒlƒ`ƒƒ‚Ì¶¬‚É¸”s");
+        printf("ãƒ«ãƒ¼ãƒˆã‚·ã‚°ãƒãƒãƒ£ã®ç”Ÿæˆã«å¤±æ•—");
         return false;
     }
 
@@ -139,45 +144,47 @@ bool Scene::Init() {
     gp_pipelinestate->SetPixelShader(L"../x64/Debug/simplepixelshader.cso");
     gp_pipelinestate->Create();
     if (!gp_pipelinestate->IsValid()) {
-        printf("ƒpƒCƒvƒ‰ƒCƒ“ƒXƒe[ƒg‚Ì¶¬‚É¸”s");
+        printf("ãƒ‘ã‚¤ãƒ—ãƒ©ã‚¤ãƒ³ã‚¹ãƒ†ãƒ¼ãƒˆã®ç”Ÿæˆã«å¤±æ•—");
         return false;
     }
 
-    printf("ƒV[ƒ“‚Ì‰Šú‰»‚É¬Œ÷");
+    printf("ã‚·ãƒ¼ãƒ³ã®åˆæœŸåŒ–ã«æˆåŠŸ");
     return true;
 }
 
 void Scene::Update() {
-    // EnemyBot‚ğ‰•œ‚³‚¹‚é
-    //auto currentindex = gp_engine->CurrentBackBufferIndex(); // Œ»İ‚ÌƒtƒŒ[ƒ€”Ô†‚ğæ“¾‚·‚é
-    //auto currenttransform = gp_constantbuffer[currentindex]->GetPtr<Transform>(); // Œ»İ‚ÌƒtƒŒ[ƒ€”Ô†‚É‘Î‰‚·‚é’è”ƒoƒbƒtƒ@‚ğæ“¾
-    //gp_enemy_bot->RoundTripX(0.0025f, 8.0f, currenttransform);
+    rotateX += 0.001f;
+    // EnemyBotã‚’å¾€å¾©ã•ã›ã‚‹
+    auto currentindex = gp_engine->CurrentBackBufferIndex(); // ç¾åœ¨ã®ãƒ•ãƒ¬ãƒ¼ãƒ ç•ªå·ã‚’å–å¾—ã™ã‚‹
+
+    gp_constantbuffer[currentindex * model_list.size() + 0]->GetPtr<Transform>()->world = XMMatrixTranslation(rotateX, 0, 0); // enemy_bot
+    gp_constantbuffer[currentindex * model_list.size() + 1]->GetPtr<Transform>()->world = XMMatrixTranslation(0, 0, -rotateX); // bullet
 }
 
 void Scene::Draw() {
-    auto currentindex = gp_engine->CurrentBackBufferIndex(); // Œ»İ‚ÌƒtƒŒ[ƒ€”Ô†‚ğæ“¾‚·‚é
-    auto commandlist = gp_engine->CommandList(); // ƒRƒ}ƒ“ƒhƒŠƒXƒg
-    auto material_heap = gp_descriptor_heap->GetHeap(); // ƒfƒBƒXƒNƒŠƒvƒ^ƒq[ƒv
+    auto currentindex = gp_engine->CurrentBackBufferIndex(); // ç¾åœ¨ã®ãƒ•ãƒ¬ãƒ¼ãƒ ç•ªå·ã‚’å–å¾—ã™ã‚‹
+    auto commandlist = gp_engine->CommandList(); // ã‚³ãƒãƒ³ãƒ‰ãƒªã‚¹ãƒˆ
+    auto material_heap = gp_descriptor_heap->GetHeap(); // ãƒ‡ã‚£ã‚¹ã‚¯ãƒªãƒ—ã‚¿ãƒ’ãƒ¼ãƒ—
 
-    // ƒ‚ƒfƒ‹‚Ì”‚¾‚¯•`‰æ
+    // ãƒ¢ãƒ‡ãƒ«ã®æ•°ã ã‘æç”»
     for (int count = 0; count < g_objects.size(); ++count) {
-        // ƒƒbƒVƒ…‚Ì”‚¾‚¯ƒCƒ“ƒfƒbƒNƒX•ª‚Ì•`‰æ‚ğˆ—‚ğs‚¤ˆ—‚ğ‰ñ‚·
+        // ãƒ¡ãƒƒã‚·ãƒ¥ã®æ•°ã ã‘ã‚¤ãƒ³ãƒ‡ãƒƒã‚¯ã‚¹åˆ†ã®æç”»ã‚’å‡¦ç†ã‚’è¡Œã†å‡¦ç†ã‚’å›ã™
         for (size_t i = 0; i < g_objects[count].size(); ++i) {
-            auto vertexbufferview = gp_vertex_buffers[count][i]->View(); // ’¸“_ƒoƒbƒtƒ@ƒrƒ…[
-            auto indexbufferview = gp_index_buffers[count][i]->View(); // ƒCƒ“ƒfƒbƒNƒXƒoƒbƒtƒ@ƒrƒ…[
+            auto vertexbufferview = gp_vertex_buffers[count][i]->View(); // é ‚ç‚¹ãƒãƒƒãƒ•ã‚¡ãƒ“ãƒ¥ãƒ¼
+            auto indexbufferview = gp_index_buffers[count][i]->View(); // ã‚¤ãƒ³ãƒ‡ãƒƒã‚¯ã‚¹ãƒãƒƒãƒ•ã‚¡ãƒ“ãƒ¥ãƒ¼
 
-            commandlist->SetGraphicsRootSignature(gp_rootsignature->Get()); // ƒ‹[ƒgƒVƒOƒlƒ`ƒƒ‚ğƒZƒbƒg
-            commandlist->SetPipelineState(gp_pipelinestate->Get()); // ƒpƒCƒvƒ‰ƒCƒ“ƒXƒe[ƒg‚ğƒZƒbƒg
-            commandlist->SetGraphicsRootConstantBufferView(0, gp_constantbuffer[currentindex]->GetAddress()); // ’è”ƒoƒbƒtƒ@‚ğƒZƒbƒg
+            commandlist->SetGraphicsRootSignature(gp_rootsignature->Get()); // ãƒ«ãƒ¼ãƒˆã‚·ã‚°ãƒãƒãƒ£ã‚’ã‚»ãƒƒãƒˆ
+            commandlist->SetPipelineState(gp_pipelinestate->Get()); // ãƒ‘ã‚¤ãƒ—ãƒ©ã‚¤ãƒ³ã‚¹ãƒ†ãƒ¼ãƒˆã‚’ã‚»ãƒƒãƒˆ
+            commandlist->SetGraphicsRootConstantBufferView(0, gp_constantbuffer[currentindex * model_list.size() + count]->GetAddress()); // å®šæ•°ãƒãƒƒãƒ•ã‚¡ã‚’ã‚»ãƒƒãƒˆ
 
-            commandlist->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST); // OŠpŒ`‚ğ•`‰æ‚·‚éİ’è‚É‚·‚é
-            commandlist->IASetVertexBuffers(0, 1, &vertexbufferview); // ’¸“_ƒoƒbƒtƒ@‚ğƒXƒƒbƒg0”Ô‚ğg‚Á‚Ä1ŒÂ‚¾‚¯İ’è‚·‚é
-            commandlist->IASetIndexBuffer(&indexbufferview); // ƒCƒ“ƒfƒbƒNƒXƒoƒbƒtƒ@‚ğƒZƒbƒg‚·‚é
+            commandlist->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST); // ä¸‰è§’å½¢ã‚’æç”»ã™ã‚‹è¨­å®šã«ã™ã‚‹
+            commandlist->IASetVertexBuffers(0, 1, &vertexbufferview); // é ‚ç‚¹ãƒãƒƒãƒ•ã‚¡ã‚’ã‚¹ãƒ­ãƒƒãƒˆ0ç•ªã‚’ä½¿ã£ã¦1å€‹ã ã‘è¨­å®šã™ã‚‹
+            commandlist->IASetIndexBuffer(&indexbufferview); // ã‚¤ãƒ³ãƒ‡ãƒƒã‚¯ã‚¹ãƒãƒƒãƒ•ã‚¡ã‚’ã‚»ãƒƒãƒˆã™ã‚‹
 
-            commandlist->SetDescriptorHeaps(1, &material_heap); // g—p‚·‚éƒfƒBƒXƒNƒŠƒvƒ^ƒq[ƒv‚ğƒZƒbƒg
-            commandlist->SetGraphicsRootDescriptorTable(1, gp_material_handles[count][i]->m_handle_GPU); // ‚»‚ÌƒƒbƒVƒ…‚É‘Î‰‚·‚éƒfƒBƒXƒNƒŠƒvƒ^ƒe[ƒuƒ‹‚ğƒZƒbƒg
+            commandlist->SetDescriptorHeaps(1, &material_heap); // ä½¿ç”¨ã™ã‚‹ãƒ‡ã‚£ã‚¹ã‚¯ãƒªãƒ—ã‚¿ãƒ’ãƒ¼ãƒ—ã‚’ã‚»ãƒƒãƒˆ
+            commandlist->SetGraphicsRootDescriptorTable(1, gp_material_handles[count][i]->m_handle_GPU); // ãã®ãƒ¡ãƒƒã‚·ãƒ¥ã«å¯¾å¿œã™ã‚‹ãƒ‡ã‚£ã‚¹ã‚¯ãƒªãƒ—ã‚¿ãƒ†ãƒ¼ãƒ–ãƒ«ã‚’ã‚»ãƒƒãƒˆ
 
-            commandlist->DrawIndexedInstanced(g_objects[count][i].indices.size(), 1, 0, 0, 0); // ƒCƒ“ƒfƒbƒNƒX‚Ì”•ª‚ğ•`‰æ‚·‚é
+            commandlist->DrawIndexedInstanced(g_objects[count][i].indices.size(), 1, 0, 0, 0); // ã‚¤ãƒ³ãƒ‡ãƒƒã‚¯ã‚¹ã®æ•°åˆ†ã‚’æç”»ã™ã‚‹
         }
     }
 }

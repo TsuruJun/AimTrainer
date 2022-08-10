@@ -4,43 +4,43 @@
 using namespace std;
 
 RootSignature::RootSignature() {
-    auto flag = D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT; // ƒAƒvƒŠƒP[ƒVƒ‡ƒ“‚Ì“ü—ÍƒAƒZƒ“ƒuƒ‰‚ðŽg—p‚·‚é
-    flag |= D3D12_ROOT_SIGNATURE_FLAG_DENY_DOMAIN_SHADER_ROOT_ACCESS; // ƒhƒƒCƒ“ƒVƒF[ƒ_‚Ìƒ‹[ƒgƒVƒOƒlƒ`ƒƒ‚Ö‚ÌƒAƒNƒZƒX‚ð‹‘”Û‚·‚é
-    flag |= D3D12_ROOT_SIGNATURE_FLAG_DENY_HULL_SHADER_ROOT_ACCESS; // ƒnƒ‹ƒVƒF[ƒ_‚Ìƒ‹[ƒgƒVƒOƒlƒ`ƒƒ‚Ö‚ÌƒAƒNƒZƒX‚ð‹‘”Û‚·‚é
-    flag |= D3D12_ROOT_SIGNATURE_FLAG_DENY_GEOMETRY_SHADER_ROOT_ACCESS; // ƒWƒIƒƒgƒŠƒVƒF[ƒ_‚Ìƒ‹[ƒgƒVƒOƒlƒ`ƒƒ‚Ö‚ÌƒAƒNƒZƒX‚ð‹‘”Û‚·‚é
+    auto flag = D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT; // ã‚¢ãƒ—ãƒªã‚±ãƒ¼ã‚·ãƒ§ãƒ³ã®å…¥åŠ›ã‚¢ã‚»ãƒ³ãƒ–ãƒ©ã‚’ä½¿ç”¨ã™ã‚‹
+    flag |= D3D12_ROOT_SIGNATURE_FLAG_DENY_DOMAIN_SHADER_ROOT_ACCESS; // ãƒ‰ãƒ¡ã‚¤ãƒ³ã‚·ã‚§ãƒ¼ãƒ€ã®ãƒ«ãƒ¼ãƒˆã‚·ã‚°ãƒãƒãƒ£ã¸ã®ã‚¢ã‚¯ã‚»ã‚¹ã‚’æ‹’å¦ã™ã‚‹
+    flag |= D3D12_ROOT_SIGNATURE_FLAG_DENY_HULL_SHADER_ROOT_ACCESS; // ãƒãƒ«ã‚·ã‚§ãƒ¼ãƒ€ã®ãƒ«ãƒ¼ãƒˆã‚·ã‚°ãƒãƒãƒ£ã¸ã®ã‚¢ã‚¯ã‚»ã‚¹ã‚’æ‹’å¦ã™ã‚‹
+    flag |= D3D12_ROOT_SIGNATURE_FLAG_DENY_GEOMETRY_SHADER_ROOT_ACCESS; // ã‚¸ã‚ªãƒ¡ãƒˆãƒªã‚·ã‚§ãƒ¼ãƒ€ã®ãƒ«ãƒ¼ãƒˆã‚·ã‚°ãƒãƒãƒ£ã¸ã®ã‚¢ã‚¯ã‚»ã‚¹ã‚’æ‹’å¦ã™ã‚‹
 
-    CD3DX12_ROOT_PARAMETER rootparam[2] = {}; // ’è”ƒoƒbƒtƒ@‚ÆƒeƒNƒXƒ`ƒƒ‚Ì2
-    rootparam[0].InitAsConstantBufferView(0, 0, D3D12_SHADER_VISIBILITY_ALL); // b0‚Ì’è”ƒoƒbƒtƒ@‚ðÝ’èA‘S‚Ä‚ÌƒVƒF[ƒ_‚©‚çŒ©‚¦‚é‚æ‚¤‚É‚·‚é
+    CD3DX12_ROOT_PARAMETER rootparam[2] = {}; // å®šæ•°ãƒãƒƒãƒ•ã‚¡ã¨ãƒ†ã‚¯ã‚¹ãƒãƒ£ã®2
+    rootparam[0].InitAsConstantBufferView(0, 0, D3D12_SHADER_VISIBILITY_ALL); // b0ã®å®šæ•°ãƒãƒƒãƒ•ã‚¡ã‚’è¨­å®šã€å…¨ã¦ã®ã‚·ã‚§ãƒ¼ãƒ€ã‹ã‚‰è¦‹ãˆã‚‹ã‚ˆã†ã«ã™ã‚‹
 
-    CD3DX12_DESCRIPTOR_RANGE table_range[1] = {}; // ƒfƒBƒXƒNƒŠƒvƒ^ƒe[ƒuƒ‹
-    table_range[0].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, 0); // ƒVƒF[ƒ_[ƒŠƒ\[ƒXƒrƒ…[
+    CD3DX12_DESCRIPTOR_RANGE table_range[1] = {}; // ãƒ‡ã‚£ã‚¹ã‚¯ãƒªãƒ—ã‚¿ãƒ†ãƒ¼ãƒ–ãƒ«
+    table_range[0].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, 0); // ã‚·ã‚§ãƒ¼ãƒ€ãƒ¼ãƒªã‚½ãƒ¼ã‚¹ãƒ“ãƒ¥ãƒ¼
     rootparam[1].InitAsDescriptorTable(size(table_range), table_range, D3D12_SHADER_VISIBILITY_ALL);
 
-    // ƒXƒ^ƒeƒBƒbƒNƒTƒ“ƒvƒ‰‚ÌÝ’è
+    // ã‚¹ã‚¿ãƒ†ã‚£ãƒƒã‚¯ã‚µãƒ³ãƒ—ãƒ©ã®è¨­å®š
     auto sampler = CD3DX12_STATIC_SAMPLER_DESC(0, D3D12_FILTER_MIN_MAG_POINT_MIP_LINEAR);
 
-    // ƒ‹[ƒgƒVƒOƒlƒ`ƒƒ‚ÌÝ’è(Ý’è‚µ‚½‚¢ƒ‹[ƒgƒpƒ‰ƒ[ƒ^‚ÆƒXƒ^ƒeƒBƒbƒNƒTƒ“ƒvƒ‰‚ð“ü‚ê‚é)
+    // ãƒ«ãƒ¼ãƒˆã‚·ã‚°ãƒãƒãƒ£ã®è¨­å®š(è¨­å®šã—ãŸã„ãƒ«ãƒ¼ãƒˆãƒ‘ãƒ©ãƒ¡ãƒ¼ã‚¿ã¨ã‚¹ã‚¿ãƒ†ã‚£ãƒƒã‚¯ã‚µãƒ³ãƒ—ãƒ©ã‚’å…¥ã‚Œã‚‹)
     D3D12_ROOT_SIGNATURE_DESC desc = {};
-    desc.NumParameters = std::size(rootparam); // ƒ‹[ƒgƒpƒ‰ƒ[ƒ^‚ÌŒÂ”‚ð“ü‚ê‚é
-    desc.NumStaticSamplers = 1; // ƒTƒ“ƒvƒ‰‚ÌŒÂ”‚ð“ü‚ê‚é
-    desc.pParameters = rootparam; // ƒ‹[ƒgƒpƒ‰ƒ[ƒ^‚Ìƒ|ƒCƒ“ƒ^‚ð“ü‚ê‚é
-    desc.pStaticSamplers = &sampler; // ƒTƒ“ƒvƒ‰‚Ìƒ|ƒCƒ“ƒ^‚ð“ü‚ê‚é
-    desc.Flags = flag; // ƒtƒ‰ƒO‚ðÝ’è
+    desc.NumParameters = std::size(rootparam); // ãƒ«ãƒ¼ãƒˆãƒ‘ãƒ©ãƒ¡ãƒ¼ã‚¿ã®å€‹æ•°ã‚’å…¥ã‚Œã‚‹
+    desc.NumStaticSamplers = 1; // ã‚µãƒ³ãƒ—ãƒ©ã®å€‹æ•°ã‚’å…¥ã‚Œã‚‹
+    desc.pParameters = rootparam; // ãƒ«ãƒ¼ãƒˆãƒ‘ãƒ©ãƒ¡ãƒ¼ã‚¿ã®ãƒã‚¤ãƒ³ã‚¿ã‚’å…¥ã‚Œã‚‹
+    desc.pStaticSamplers = &sampler; // ã‚µãƒ³ãƒ—ãƒ©ã®ãƒã‚¤ãƒ³ã‚¿ã‚’å…¥ã‚Œã‚‹
+    desc.Flags = flag; // ãƒ•ãƒ©ã‚°ã‚’è¨­å®š
 
     ComPtr<ID3DBlob> p_blob;
     ComPtr<ID3DBlob> p_errorblob;
 
-    // ƒVƒŠƒAƒ‰ƒCƒY
+    // ã‚·ãƒªã‚¢ãƒ©ã‚¤ã‚º
     auto hresult = D3D12SerializeRootSignature(&desc, D3D_ROOT_SIGNATURE_VERSION_1_0, p_blob.GetAddressOf(), p_errorblob.GetAddressOf());
     if (FAILED(hresult)) {
-        printf("ƒ‹[ƒgƒVƒOƒlƒ`ƒƒƒVƒŠƒAƒ‰ƒCƒY‚ÉŽ¸”s");
+        printf("ãƒ«ãƒ¼ãƒˆã‚·ã‚°ãƒãƒãƒ£ã‚·ãƒªã‚¢ãƒ©ã‚¤ã‚ºã«å¤±æ•—");
         return;
     }
 
-    // ƒ‹[ƒgƒVƒOƒlƒ`ƒƒ¶¬
+    // ãƒ«ãƒ¼ãƒˆã‚·ã‚°ãƒãƒãƒ£ç”Ÿæˆ
     hresult = gp_engine->Device()->CreateRootSignature(0, p_blob->GetBufferPointer(), p_blob->GetBufferSize(), IID_PPV_ARGS(mp_rootsignature.ReleaseAndGetAddressOf()));
     if (FAILED(hresult)) {
-        printf("ƒ‹[ƒgƒVƒOƒlƒ`ƒƒ‚Ì¶¬‚ÉŽ¸”s");
+        printf("ãƒ«ãƒ¼ãƒˆã‚·ã‚°ãƒãƒãƒ£ã®ç”Ÿæˆã«å¤±æ•—");
         return;
     }
 

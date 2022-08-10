@@ -1,25 +1,25 @@
 #pragma once
-#include <d3dx12.h>
 #include "comptr.h"
+#include <d3dx12.h>
 
 class ConstantBuffer {
 public:
-    ConstantBuffer(size_t size); // ƒRƒ“ƒXƒgƒ‰ƒNƒ^‚Å’è”ƒoƒbƒtƒ@‚ğ¶¬
-    bool IsValid(); // ƒoƒbƒtƒ@¶¬‚É¬Œ÷‚µ‚½‚©‚ğ•Ô‚·
-    D3D12_GPU_VIRTUAL_ADDRESS GetAddress() const; // ƒoƒbƒtƒ@‚ÌGPUã‚ÌƒAƒhƒŒƒX‚ğ•Ô‚·
-    D3D12_CONSTANT_BUFFER_VIEW_DESC ViewDesc(); //’è”ƒoƒbƒtƒ@ƒrƒ…[‚ğ•Ô‚·
+    ConstantBuffer(size_t size); // ã‚³ãƒ³ã‚¹ãƒˆãƒ©ã‚¯ã‚¿ã§å®šæ•°ãƒãƒƒãƒ•ã‚¡ã‚’ç”Ÿæˆ
+    bool IsValid(); // ãƒãƒƒãƒ•ã‚¡ç”Ÿæˆã«æˆåŠŸã—ãŸã‹ã‚’è¿”ã™
+    D3D12_GPU_VIRTUAL_ADDRESS GetAddress() const; // ãƒãƒƒãƒ•ã‚¡ã®GPUä¸Šã®ã‚¢ãƒ‰ãƒ¬ã‚¹ã‚’è¿”ã™
+    D3D12_CONSTANT_BUFFER_VIEW_DESC ViewDesc(); //å®šæ•°ãƒãƒƒãƒ•ã‚¡ãƒ“ãƒ¥ãƒ¼ã‚’è¿”ã™
 
-    void *GetPtr() const; // ’è”ƒoƒbƒtƒ@‚Éƒ}ƒbƒsƒ“ƒO‚³‚ê‚½ƒ|ƒCƒ“ƒ^‚ğ•Ô‚·
+    void *GetPtr() const; // å®šæ•°ãƒãƒƒãƒ•ã‚¡ã«ãƒãƒƒãƒ”ãƒ³ã‚°ã•ã‚ŒãŸãƒã‚¤ãƒ³ã‚¿ã‚’è¿”ã™
 
-    template<typename T>
+    template <typename T>
     T *GetPtr() {
         return reinterpret_cast<T *>(GetPtr());
     }
 
 private:
-    bool m_isvalid = false; // ’è”ƒoƒbƒtƒ@¶¬‚É¬Œ÷‚µ‚½‚©
-    ComPtr<ID3D12Resource> mp_buffer = nullptr; // ’è”ƒoƒbƒtƒ@
-    D3D12_CONSTANT_BUFFER_VIEW_DESC m_desc = {}; //’è”ƒoƒbƒtƒ@ƒrƒ…[‚Ìİ’è
+    bool m_isvalid = false; // å®šæ•°ãƒãƒƒãƒ•ã‚¡ç”Ÿæˆã«æˆåŠŸã—ãŸã‹
+    ComPtr<ID3D12Resource> mp_buffer = nullptr; // å®šæ•°ãƒãƒƒãƒ•ã‚¡
+    D3D12_CONSTANT_BUFFER_VIEW_DESC m_desc = {}; //å®šæ•°ãƒãƒƒãƒ•ã‚¡ãƒ“ãƒ¥ãƒ¼ã®è¨­å®š
     void *mp_mappedptr = nullptr;
 
     ConstantBuffer(const ConstantBuffer &) = delete;

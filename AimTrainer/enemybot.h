@@ -1,7 +1,7 @@
 #pragma once
-#include <vector>
-#include "sharedstruct.h"
 #include "constantbuffer.h"
+#include "sharedstruct.h"
+#include <vector>
 
 class EnemyBot {
 public:

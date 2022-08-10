@@ -1,14 +1,14 @@
 #pragma once
-#include <d3dx12.h>
-#include <DirectXMath.h>
 #include "comptr.h"
+#include <DirectXMath.h>
+#include <d3dx12.h>
 
 struct Vertex {
-    DirectX::XMFLOAT3 position; // ˆÊ’uÀ•W
-    DirectX::XMFLOAT3 normal; // –@ü
-    DirectX::XMFLOAT2 uv; // uvÀ•W
-    DirectX::XMFLOAT3 tangent; // Ú‹óŠÔ
-    DirectX::XMFLOAT4 color; // ’¸“_F
+    DirectX::XMFLOAT3 position; // ä½ç½®åº§æ¨™
+    DirectX::XMFLOAT3 normal; // æ³•ç·š
+    DirectX::XMFLOAT2 uv; // uvåº§æ¨™
+    DirectX::XMFLOAT3 tangent; // æ¥ç©ºé–“
+    DirectX::XMFLOAT4 color; // é ‚ç‚¹è‰²
     static const D3D12_INPUT_LAYOUT_DESC inputlayout;
 
 private:
@@ -17,13 +17,13 @@ private:
 };
 
 struct alignas(256) Transform {
-    DirectX::XMMATRIX world; // ƒ[ƒ‹ƒhs—ñ
-    DirectX::XMMATRIX view; // ƒrƒ…[s—ñ
-    DirectX::XMMATRIX proj; // “Š‰es—ñ
+    DirectX::XMMATRIX world; // ãƒ¯ãƒ¼ãƒ«ãƒ‰è¡Œåˆ—
+    DirectX::XMMATRIX view; // ãƒ“ãƒ¥ãƒ¼è¡Œåˆ—
+    DirectX::XMMATRIX proj; // æŠ•å½±è¡Œåˆ—
 };
 
 struct Mesh {
-    std::vector<Vertex> vertices; // ’¸“_ƒf[ƒ^‚Ì”z—ñ
-    std::vector<uint32_t> indices; // ƒCƒ“ƒfƒbƒNƒX‚Ì”z—ñ
-    std::wstring diffusemap; // ƒeƒNƒXƒ`ƒƒ‚Ìƒtƒ@ƒCƒ‹ƒpƒX
+    std::vector<Vertex> vertices; // é ‚ç‚¹ãƒ‡ãƒ¼ã‚¿ã®é…åˆ—
+    std::vector<uint32_t> indices; // ã‚¤ãƒ³ãƒ‡ãƒƒã‚¯ã‚¹ã®é…åˆ—
+    std::wstring diffusemap; // ãƒ†ã‚¯ã‚¹ãƒãƒ£ã®ãƒ•ã‚¡ã‚¤ãƒ«ãƒ‘ã‚¹
 };

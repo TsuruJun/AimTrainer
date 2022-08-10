@@ -1,12 +1,12 @@
 struct VSOutput {
-    float4 svpos : SV_POSITION; // ’¸“_ƒVƒF[ƒ_‚©‚ç—ˆ‚½À•W
-    float4 color : COLOR; // ’¸“_ƒVƒF[ƒ_‚©‚ç—ˆ‚½F
+    float4 svpos : SV_POSITION; // é ‚ç‚¹ã‚·ã‚§ãƒ¼ãƒ€ã‹ã‚‰æ¥ãŸåº§æ¨™
+    float4 color : COLOR; // é ‚ç‚¹ã‚·ã‚§ãƒ¼ãƒ€ã‹ã‚‰æ¥ãŸè‰²
     float2 uv : TEXCOORD;
 };
 
-SamplerState samp : register(s0); // ƒTƒ“ƒvƒ‰[
-Texture2D main_tex : register(t0); // ƒeƒNƒXƒ`ƒƒ
+SamplerState samp : register(s0); // ã‚µãƒ³ãƒ—ãƒ©ãƒ¼
+Texture2D main_tex : register(t0); // ãƒ†ã‚¯ã‚¹ãƒãƒ£
 
 float4 pixel(VSOutput input) : SV_TARGET {
-    return input.color; // F‚ğ‚»‚Ì‚Ü‚Ü•\¦‚·‚é
+    return input.color; // è‰²ã‚’ãã®ã¾ã¾è¡¨ç¤ºã™ã‚‹
 }

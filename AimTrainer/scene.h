@@ -2,10 +2,10 @@
 
 class Scene {
 public:
-    bool Init(); // ‰Šú‰»
+    bool Init(); // åˆæœŸåŒ–
 
-    void Update(); // XVˆ—
-    void Draw(); // •`‰æˆ—
+    void Update(); // æ›´æ–°å‡¦ç†
+    void Draw(); // æç”»å‡¦ç†
 };
 
 extern Scene *gp_scene;

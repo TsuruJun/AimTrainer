@@ -5,11 +5,11 @@ struct ID3D12RootSignature;
 
 class RootSignature {
 public:
-    RootSignature(); // ƒRƒ“ƒXƒgƒ‰ƒNƒ^‚Åƒ‹[ƒgƒVƒOƒlƒ`ƒƒ‚ğ¶¬
-    bool IsValid(); // ƒ‹[ƒgƒVƒOƒlƒ`ƒƒ‚Ì¶¬‚É¬Œ÷‚µ‚½‚©‚ğ•Ô‚·
-    ID3D12RootSignature *Get(); // ƒ‹[ƒgƒVƒOƒlƒ`ƒƒ‚ğ•Ô‚·
+    RootSignature(); // ã‚³ãƒ³ã‚¹ãƒˆãƒ©ã‚¯ã‚¿ã§ãƒ«ãƒ¼ãƒˆã‚·ã‚°ãƒãƒãƒ£ã‚’ç”Ÿæˆ
+    bool IsValid(); // ãƒ«ãƒ¼ãƒˆã‚·ã‚°ãƒãƒãƒ£ã®ç”Ÿæˆã«æˆåŠŸã—ãŸã‹ã‚’è¿”ã™
+    ID3D12RootSignature *Get(); // ãƒ«ãƒ¼ãƒˆã‚·ã‚°ãƒãƒãƒ£ã‚’è¿”ã™
 
 private:
-    bool m_isvalid = false; // ƒ‹[ƒgƒVƒOƒlƒ`ƒƒ‚Ì¶¬‚É¬Œ÷‚µ‚½‚©
+    bool m_isvalid = false; // ãƒ«ãƒ¼ãƒˆã‚·ã‚°ãƒãƒãƒ£ã®ç”Ÿæˆã«æˆåŠŸã—ãŸã‹
     ComPtr<ID3D12RootSignature> mp_rootsignature = nullptr;
 };

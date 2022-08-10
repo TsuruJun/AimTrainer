@@ -1,33 +1,33 @@
 cbuffer Transform : register(b0) {
-    float4x4 world; // ƒ[ƒ‹ƒhs—ñ
-    float4x4 view; // ƒrƒ…[s—ñ
-    float4x4 proj; // “Š‰es—ñ
+    float4x4 world; // ãƒ¯ãƒ¼ãƒ«ãƒ‰è¡Œåˆ—
+    float4x4 view; // ãƒ“ãƒ¥ãƒ¼è¡Œåˆ—
+    float4x4 proj; // æŠ•å½±è¡Œåˆ—
 }
 
 struct VSInput {
-    float3 pos : POSITION; // ’¸“_À•W
-    float3 normal : NORMAL; // –@ü
+    float3 pos : POSITION; // é ‚ç‚¹åº§æ¨™
+    float3 normal : NORMAL; // æ³•ç·š
     float2 uv : TEXCOORD; // uv
-    float3 tangent : TANGENT; // Ú‹óŠÔ
-    float4 color : COLOR; // ’¸“_F
+    float3 tangent : TANGENT; // æ¥ç©ºé–“
+    float4 color : COLOR; // é ‚ç‚¹è‰²
 };
 
 struct VSOutput {
-    float4 svpos : SV_POSITION; // •ÏŠ·‚³‚ê‚½À•W
-    float4 color : COLOR; // •ÏŠ·‚³‚ê‚½F
+    float4 svpos : SV_POSITION; // å¤‰æ›ã•ã‚ŒãŸåº§æ¨™
+    float4 color : COLOR; // å¤‰æ›ã•ã‚ŒãŸè‰²
     float2 uv : TEXCOORD;
 };
 
 VSOutput vert(VSInput input) {
-    VSOutput output = (VSOutput)0; // ƒAƒEƒgƒvƒbƒg\‘¢‘Ì‚ğ’è‹`‚·‚é
+    VSOutput output = (VSOutput)0; // ã‚¢ã‚¦ãƒˆãƒ—ãƒƒãƒˆæ§‹é€ ä½“ã‚’å®šç¾©ã™ã‚‹
 
-    float4 localposition = float4(input.pos, 1.0f); // ’¸“_À•W
-    float4 worldpos = mul(world, localposition); // ƒ[ƒ‹ƒhÀ•W‚É•ÏŠ·
-    float4 viewpos = mul(view, worldpos); // ƒrƒ…[À•W‚É•ÏŠ·
-    float4 projpos = mul(proj, viewpos); // “Š‰e•ÏŠ·
+    float4 localposition = float4(input.pos, 1.0f); // é ‚ç‚¹åº§æ¨™
+    float4 worldpos = mul(world, localposition); // ãƒ¯ãƒ¼ãƒ«ãƒ‰åº§æ¨™ã«å¤‰æ›
+    float4 viewpos = mul(view, worldpos); // ãƒ“ãƒ¥ãƒ¼åº§æ¨™ã«å¤‰æ›
+    float4 projpos = mul(proj, viewpos); // æŠ•å½±å¤‰æ›
 
-    output.svpos = projpos; // “Š‰e•ÏŠ·‚³‚ê‚½À•W‚ğƒsƒNƒZƒ‹ƒVƒF[ƒ_‚É“n‚·
-    output.color = input.color; // ’¸“_F‚ğ‚»‚Ì‚Ü‚ÜƒsƒNƒZƒ‹ƒVƒF[ƒ_‚É“n‚·
+    output.svpos = projpos; // æŠ•å½±å¤‰æ›ã•ã‚ŒãŸåº§æ¨™ã‚’ãƒ”ã‚¯ã‚»ãƒ«ã‚·ã‚§ãƒ¼ãƒ€ã«æ¸¡ã™
+    output.color = input.color; // é ‚ç‚¹è‰²ã‚’ãã®ã¾ã¾ãƒ”ã‚¯ã‚»ãƒ«ã‚·ã‚§ãƒ¼ãƒ€ã«æ¸¡ã™
     output.uv = input.uv;
     return output;
 }

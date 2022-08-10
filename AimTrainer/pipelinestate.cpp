@@ -1,22 +1,22 @@
 #include "pipelinestate.h"
 #include "engine.h"
-#include <d3dx12.h>
 #include <d3dcompiler.h>
+#include <d3dx12.h>
 
 #pragma comment(lib, "d3dcompiler.lib")
 
 PipelineState::PipelineState() {
-    // ƒpƒCƒvƒ‰ƒCƒ“ƒXƒe[ƒg‚Ìİ’è
-    desc.RasterizerState = CD3DX12_RASTERIZER_DESC(D3D12_DEFAULT); // ƒ‰ƒXƒ^ƒ‰ƒCƒU‚ÍƒfƒtƒHƒ‹ƒg
-    desc.RasterizerState.CullMode = D3D12_CULL_MODE_NONE; // ƒJƒŠƒ“ƒO‚Í‚È‚µ
-    desc.BlendState = CD3DX12_BLEND_DESC(D3D12_DEFAULT); // ƒuƒŒƒ“ƒhƒXƒe[ƒg‚àƒfƒtƒHƒ‹ƒg
-    desc.DepthStencilState = CD3DX12_DEPTH_STENCIL_DESC(D3D12_DEFAULT); // [“xƒXƒeƒ“ƒVƒ‹‚ÍƒfƒtƒHƒ‹ƒg‚ğg‚¤
+    // ãƒ‘ã‚¤ãƒ—ãƒ©ã‚¤ãƒ³ã‚¹ãƒ†ãƒ¼ãƒˆã®è¨­å®š
+    desc.RasterizerState = CD3DX12_RASTERIZER_DESC(D3D12_DEFAULT); // ãƒ©ã‚¹ã‚¿ãƒ©ã‚¤ã‚¶ã¯ãƒ‡ãƒ•ã‚©ãƒ«ãƒˆ
+    desc.RasterizerState.CullMode = D3D12_CULL_MODE_NONE; // ã‚«ãƒªãƒ³ã‚°ã¯ãªã—
+    desc.BlendState = CD3DX12_BLEND_DESC(D3D12_DEFAULT); // ãƒ–ãƒ¬ãƒ³ãƒ‰ã‚¹ãƒ†ãƒ¼ãƒˆã‚‚ãƒ‡ãƒ•ã‚©ãƒ«ãƒˆ
+    desc.DepthStencilState = CD3DX12_DEPTH_STENCIL_DESC(D3D12_DEFAULT); // æ·±åº¦ã‚¹ãƒ†ãƒ³ã‚·ãƒ«ã¯ãƒ‡ãƒ•ã‚©ãƒ«ãƒˆã‚’ä½¿ã†
     desc.SampleMask = D3D12_DEFAULT_SAMPLE_MASK;
-    desc.PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE; // OŠpŒ`‚ğ•`‰æ
-    desc.NumRenderTargets = 1; // •`‰æ‘ÎÛ‚Í1
+    desc.PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE; // ä¸‰è§’å½¢ã‚’æç”»
+    desc.NumRenderTargets = 1; // æç”»å¯¾è±¡ã¯1
     desc.RTVFormats[0] = DXGI_FORMAT_R8G8B8A8_UNORM_SRGB;
     desc.DSVFormat = DXGI_FORMAT_D32_FLOAT;
-    desc.SampleDesc.Count = 1; // ƒTƒ“ƒvƒ‰‚Í1
+    desc.SampleDesc.Count = 1; // ã‚µãƒ³ãƒ—ãƒ©ã¯1
     desc.SampleDesc.Quality = 0;
 }
 
@@ -33,10 +33,10 @@ void PipelineState::SetRootSignature(ID3D12RootSignature *rootsignature) {
 }
 
 void PipelineState::SetVertexShader(std::wstring filepath) {
-    // ’¸“_ƒVƒF[ƒ_“Ç‚İ‚İ
+    // é ‚ç‚¹ã‚·ã‚§ãƒ¼ãƒ€èª­ã¿è¾¼ã¿
     auto hresult = D3DReadFileToBlob(filepath.c_str(), mp_vertexshaderblob.GetAddressOf());
     if (FAILED(hresult)) {
-        printf("’¸“_ƒVƒF[ƒ_‚Ì“Ç‚İ‚İ‚É¸”s\n");
+        printf("é ‚ç‚¹ã‚·ã‚§ãƒ¼ãƒ€ã®èª­ã¿è¾¼ã¿ã«å¤±æ•—\n");
         return;
     }
 
@@ -46,7 +46,7 @@ void PipelineState::SetVertexShader(std::wstring filepath) {
 void PipelineState::SetPixelShader(std::wstring filepath) {
     auto hresult = D3DReadFileToBlob(filepath.c_str(), mp_pixelshaderblob.GetAddressOf());
     if (FAILED(hresult)) {
-        printf("ƒsƒNƒZƒ‹ƒVƒF[ƒ_‚Ì“Ç‚İ‚İ‚É¸”s\n");
+        printf("ãƒ”ã‚¯ã‚»ãƒ«ã‚·ã‚§ãƒ¼ãƒ€ã®èª­ã¿è¾¼ã¿ã«å¤±æ•—\n");
         return;
     }
 
@@ -54,10 +54,10 @@ void PipelineState::SetPixelShader(std::wstring filepath) {
 }
 
 void PipelineState::Create() {
-    // ƒpƒCƒvƒ‰ƒCƒ“ƒXƒe[ƒg‚ğ¶¬
+    // ãƒ‘ã‚¤ãƒ—ãƒ©ã‚¤ãƒ³ã‚¹ãƒ†ãƒ¼ãƒˆã‚’ç”Ÿæˆ
     auto hresult = gp_engine->Device()->CreateGraphicsPipelineState(&desc, IID_PPV_ARGS(mp_pipelinestate.ReleaseAndGetAddressOf()));
     if (FAILED(hresult)) {
-        printf("ƒpƒCƒvƒ‰ƒCƒ“ƒXƒe[ƒg‚Ì¶¬‚É¸”s\n");
+        printf("ãƒ‘ã‚¤ãƒ—ãƒ©ã‚¤ãƒ³ã‚¹ãƒ†ãƒ¼ãƒˆã®ç”Ÿæˆã«å¤±æ•—\n");
         return;
     }
 

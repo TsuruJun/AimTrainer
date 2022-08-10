@@ -1,16 +1,16 @@
 #pragma once
-#include <fbxsdk.h>
-#include <vector>
-#include <string>
-#include <map>
 #include "sharedstruct.h"
+#include <fbxsdk.h>
+#include <map>
+#include <string>
+#include <vector>
 
 class FbxLoader {
 public:
     bool FbxLoad(const char *file_name);
     void Destroy();
 
-    std::vector<Mesh> GetMeshes(); // TODO: «—ˆ“I‚É‚ÍƒAƒhƒŒƒX‚ğ•Ô‚·‚æ‚¤‚É‚µ‚½‚¢
+    std::vector<Mesh> GetMeshes(); // TODO: å°†æ¥çš„ã«ã¯ã‚¢ãƒ‰ãƒ¬ã‚¹ã‚’è¿”ã™ã‚ˆã†ã«ã—ãŸã„
     void ClearMeshes();
 
 private:
@@ -18,5 +18,5 @@ private:
     fbxsdk::FbxImporter *mp_fbx_importer = nullptr;
     fbxsdk::FbxScene *mp_fbx_scene = nullptr;
 
-    std::vector<Mesh> m_meshes; // FbxMesh‚ğDirectX‚Åg‚¦‚é‚æ‚¤‚É•ÏŠ·‚µ‚½Mesh‚ÌŠi”[êŠ
+    std::vector<Mesh> m_meshes; // FbxMeshã‚’DirectXã§ä½¿ãˆã‚‹ã‚ˆã†ã«å¤‰æ›ã—ãŸMeshã®æ ¼ç´å ´æ‰€
 };

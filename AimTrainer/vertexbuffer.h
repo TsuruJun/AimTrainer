@@ -1,17 +1,17 @@
 #pragma once
-#include <d3d12.h>
 #include "comptr.h"
+#include <d3d12.h>
 
 class VertexBuffer {
 public:
-    VertexBuffer(size_t size, size_t stride, const void *p_initdata); // ƒRƒ“ƒXƒgƒ‰ƒNƒ^‚Åƒoƒbƒtƒ@‚ğì¬
-    D3D12_VERTEX_BUFFER_VIEW View() const; // ’¸“_ƒoƒbƒtƒ@ƒrƒ…[‚ğæ“¾
-    bool IsValid(); // ƒoƒbƒtƒ@‚Ì¶¬‚É¬Œ÷‚µ‚½‚©‚ğæ“¾
+    VertexBuffer(size_t size, size_t stride, const void *p_initdata); // ã‚³ãƒ³ã‚¹ãƒˆãƒ©ã‚¯ã‚¿ã§ãƒãƒƒãƒ•ã‚¡ã‚’ä½œæˆ
+    D3D12_VERTEX_BUFFER_VIEW View() const; // é ‚ç‚¹ãƒãƒƒãƒ•ã‚¡ãƒ“ãƒ¥ãƒ¼ã‚’å–å¾—
+    bool IsValid(); // ãƒãƒƒãƒ•ã‚¡ã®ç”Ÿæˆã«æˆåŠŸã—ãŸã‹ã‚’å–å¾—
 
 private:
-    bool m_isvalid = false; // ƒoƒbƒtƒ@‚Ì¶¬‚É¬Œ÷‚µ‚½‚©‚ğæ“¾
-    ComPtr<ID3D12Resource> mp_buffer = nullptr; // ƒoƒbƒtƒ@
-    D3D12_VERTEX_BUFFER_VIEW m_view = {}; // ’¸“_ƒoƒbƒtƒ@ƒrƒ…[
+    bool m_isvalid = false; // ãƒãƒƒãƒ•ã‚¡ã®ç”Ÿæˆã«æˆåŠŸã—ãŸã‹ã‚’å–å¾—
+    ComPtr<ID3D12Resource> mp_buffer = nullptr; // ãƒãƒƒãƒ•ã‚¡
+    D3D12_VERTEX_BUFFER_VIEW m_view = {}; // é ‚ç‚¹ãƒãƒƒãƒ•ã‚¡ãƒ“ãƒ¥ãƒ¼
 
     VertexBuffer(const VertexBuffer &) = delete;
     void operator=(const VertexBuffer &) = delete;

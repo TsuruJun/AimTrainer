@@ -5,21 +5,21 @@
 
 class PipelineState {
 public:
-    PipelineState(); // ƒRƒ“ƒXƒgƒ‰ƒNƒ^‚Å‚ ‚é’ö“x‚Ìİ’è‚ğ‚·‚é
-    bool IsValid(); // ¶¬‚É¬Œ÷‚µ‚½‚©‚ğ•Ô‚·
+    PipelineState(); // ã‚³ãƒ³ã‚¹ãƒˆãƒ©ã‚¯ã‚¿ã§ã‚ã‚‹ç¨‹åº¦ã®è¨­å®šã‚’ã™ã‚‹
+    bool IsValid(); // ç”Ÿæˆã«æˆåŠŸã—ãŸã‹ã‚’è¿”ã™
 
-    void SetInputLayout(D3D12_INPUT_LAYOUT_DESC layout); // “ü—ÍƒŒƒCƒAƒEƒg‚ğİ’è
-    void SetRootSignature(ID3D12RootSignature *rootsignature); // ƒ‹[ƒgƒVƒOƒlƒ`ƒƒ‚ğİ’è
-    void SetVertexShader(std::wstring filepath); // ’¸“_ƒVƒF[ƒ_‚ğİ’è
-    void SetPixelShader(std::wstring filepath); // ƒsƒNƒZƒ‹ƒVƒF[ƒ_‚ğİ’è
-    void Create(); // ƒpƒCƒvƒ‰ƒCƒ“ƒXƒe[ƒg‚ğ¶¬
+    void SetInputLayout(D3D12_INPUT_LAYOUT_DESC layout); // å…¥åŠ›ãƒ¬ã‚¤ã‚¢ã‚¦ãƒˆã‚’è¨­å®š
+    void SetRootSignature(ID3D12RootSignature *rootsignature); // ãƒ«ãƒ¼ãƒˆã‚·ã‚°ãƒãƒãƒ£ã‚’è¨­å®š
+    void SetVertexShader(std::wstring filepath); // é ‚ç‚¹ã‚·ã‚§ãƒ¼ãƒ€ã‚’è¨­å®š
+    void SetPixelShader(std::wstring filepath); // ãƒ”ã‚¯ã‚»ãƒ«ã‚·ã‚§ãƒ¼ãƒ€ã‚’è¨­å®š
+    void Create(); // ãƒ‘ã‚¤ãƒ—ãƒ©ã‚¤ãƒ³ã‚¹ãƒ†ãƒ¼ãƒˆã‚’ç”Ÿæˆ
 
     ID3D12PipelineState *Get();
 
 private:
-    bool m_isvalid = false; // ¶¬‚É¬Œ÷‚µ‚½‚©
-    D3D12_GRAPHICS_PIPELINE_STATE_DESC desc = {}; // ƒpƒCƒvƒ‰ƒCƒ“ƒXƒe[ƒg‚Ìİ’è
-    ComPtr<ID3D12PipelineState> mp_pipelinestate = nullptr; // ƒpƒCƒvƒ‰ƒCƒ“ƒXƒe[ƒg
-    ComPtr<ID3DBlob> mp_vertexshaderblob; // ’¸“_ƒVƒF[ƒ_
-    ComPtr<ID3DBlob> mp_pixelshaderblob; // ƒsƒNƒZƒ‹ƒVƒF[ƒ_
+    bool m_isvalid = false; // ç”Ÿæˆã«æˆåŠŸã—ãŸã‹
+    D3D12_GRAPHICS_PIPELINE_STATE_DESC desc = {}; // ãƒ‘ã‚¤ãƒ—ãƒ©ã‚¤ãƒ³ã‚¹ãƒ†ãƒ¼ãƒˆã®è¨­å®š
+    ComPtr<ID3D12PipelineState> mp_pipelinestate = nullptr; // ãƒ‘ã‚¤ãƒ—ãƒ©ã‚¤ãƒ³ã‚¹ãƒ†ãƒ¼ãƒˆ
+    ComPtr<ID3DBlob> mp_vertexshaderblob; // é ‚ç‚¹ã‚·ã‚§ãƒ¼ãƒ€
+    ComPtr<ID3DBlob> mp_pixelshaderblob; // ãƒ”ã‚¯ã‚»ãƒ«ã‚·ã‚§ãƒ¼ãƒ€
 };

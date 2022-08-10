@@ -1,10 +1,10 @@
 #include "enemybot.h"
-#include "fbxloader.h"
 #include "engine.h"
+#include "fbxloader.h"
 using namespace std;
 
 /// <summary>
-/// ƒRƒ“ƒXƒgƒ‰ƒNƒ^‚ÅEnemyBot‚Ì‰ŠúˆÊ’u‚ğ’è‹`
+/// ã‚³ãƒ³ã‚¹ãƒˆãƒ©ã‚¯ã‚¿ã§EnemyBotã®åˆæœŸä½ç½®ã‚’å®šç¾©
 /// </summary>
 /// <param name="x"></param>
 /// <param name="y"></param>
@@ -16,24 +16,24 @@ EnemyBot::EnemyBot(float x, float y, float z) {
 }
 
 /// <summary>
-/// EnemyBot‚ğX•ûŒü‚É‰•œ‚³‚¹‚éŠÖ”
+/// EnemyBotã‚’Xæ–¹å‘ã«å¾€å¾©ã•ã›ã‚‹é–¢æ•°
 /// </summary>
-/// <param name="offset_x">ˆÚ“®‘¬“x</param>
-/// <param name="range">‰•œ”ÍˆÍ</param>
-/// <param name="transform">’è”ƒoƒbƒtƒ@</param>
+/// <param name="offset_x">ç§»å‹•é€Ÿåº¦</param>
+/// <param name="range">å¾€å¾©ç¯„å›²</param>
+/// <param name="transform">å®šæ•°ãƒãƒƒãƒ•ã‚¡</param>
 void EnemyBot::RoundTripX(float offset_x, float range, Transform *transform) {
-    if (m_current_x > range) { // ‰E‚És‚«‰ß‚¬‚½‚çi˜H‚ğ¶‚É•Ï‚¦‚é
+    if (m_current_x > range) { // å³ã«è¡ŒãéããŸã‚‰é€²è·¯ã‚’å·¦ã«å¤‰ãˆã‚‹
         mp_mode = "-";
-    } else if (m_current_x < -range) { // ¶‚És‚«‰ß‚¬‚½‚çi˜H‚ğ‰E‚É•Ï‚¦‚é
+    } else if (m_current_x < -range) { // å·¦ã«è¡ŒãéããŸã‚‰é€²è·¯ã‚’å³ã«å¤‰ãˆã‚‹
         mp_mode = "+";
     }
 
-    // ˆÚ“®
+    // ç§»å‹•
     if (mp_mode == "+") {
         m_current_x += offset_x;
     } else if (mp_mode == "-") {
         m_current_x -= offset_x;
     }
 
-    transform->world = DirectX::XMMatrixTranslation(m_current_x, m_current_y, m_current_z); // X•ûŒü‚ÉˆÚ“®
+    transform->world = DirectX::XMMatrixTranslation(m_current_x, m_current_y, m_current_z); // Xæ–¹å‘ã«ç§»å‹•
 }

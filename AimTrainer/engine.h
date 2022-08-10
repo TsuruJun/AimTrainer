@@ -1,8 +1,8 @@
 #pragma once
+#include "comptr.h"
 #include <d3d12.h>
 #include <dxgi.h>
 #include <dxgi1_4.h>
-#include "comptr.h"
 
 #pragma comment(lib, "d3d12.lib")
 #pragma comment(lib, "dxgi.lib")
@@ -10,66 +10,66 @@
 class Engine {
 public:
     enum {
-        FRAME_BUFFER_COUNT = 2 // ƒ_ƒuƒ‹ƒoƒbƒtƒ@ƒŠƒ“ƒO‚·‚é‚Ì‚Å2
+        FRAME_BUFFER_COUNT = 2 // ãƒ€ãƒ–ãƒ«ãƒãƒƒãƒ•ã‚¡ãƒªãƒ³ã‚°ã™ã‚‹ã®ã§2
     };
 
 public:
-    bool Init(HWND hwnd, UINT window_width, UINT window_height); // ƒGƒ“ƒWƒ“‰Šú‰»
+    bool Init(HWND hwnd, UINT window_width, UINT window_height); // ã‚¨ãƒ³ã‚¸ãƒ³åˆæœŸåŒ–
 
-    void BeginRender(); // •`‰æ‚ÌŠJnˆ—
-    void EndRender(); // •`‰æ‚ÌI—¹ˆ—
+    void BeginRender(); // æç”»ã®é–‹å§‹å‡¦ç†
+    void EndRender(); // æç”»ã®çµ‚äº†å‡¦ç†
 
 public:
-    // ŠO‚©‚çƒAƒNƒZƒX‚µ‚½‚¢‚Ì‚ÅGetter‚Æ‚µ‚ÄŒöŠJ‚·‚é‚à‚Ì
+    // å¤–ã‹ã‚‰ã‚¢ã‚¯ã‚»ã‚¹ã—ãŸã„ã®ã§Getterã¨ã—ã¦å…¬é–‹ã™ã‚‹ã‚‚ã®
     ID3D12Device6 *Device();
     ID3D12GraphicsCommandList *CommandList();
     UINT CurrentBackBufferIndex();
 
 private:
-    // DirextX12‰Šú‰»‚Ég‚¤ŠÖ”‚½‚¿
-    bool CreateDevice(); // ƒfƒoƒCƒX‚ğ¶¬
-    bool CreateCommandQueue(); // ƒRƒ}ƒ“ƒhƒLƒ…[‚ğ¶¬
-    bool CreateSwapChain(); // ƒXƒƒbƒvƒ`ƒFƒCƒ“‚ğ¶¬
-    bool CreateCommandList(); // ƒRƒ}ƒ“ƒhƒŠƒXƒg‚ÆƒRƒ}ƒ“ƒhƒAƒƒP[ƒ^‚ğ¶¬
-    bool CreateFence(); // ƒtƒFƒ“ƒX‚ğ¶¬
-    void CreateViewPort(); // ƒrƒ…[ƒ|[ƒg‚ğ¶¬
-    void CreateScissorRect(); //ƒVƒU[’ZŒ`‚ğ¶¬
+    // DirextX12åˆæœŸåŒ–ã«ä½¿ã†é–¢æ•°ãŸã¡
+    bool CreateDevice(); // ãƒ‡ãƒã‚¤ã‚¹ã‚’ç”Ÿæˆ
+    bool CreateCommandQueue(); // ã‚³ãƒãƒ³ãƒ‰ã‚­ãƒ¥ãƒ¼ã‚’ç”Ÿæˆ
+    bool CreateSwapChain(); // ã‚¹ãƒ¯ãƒƒãƒ—ãƒã‚§ã‚¤ãƒ³ã‚’ç”Ÿæˆ
+    bool CreateCommandList(); // ã‚³ãƒãƒ³ãƒ‰ãƒªã‚¹ãƒˆã¨ã‚³ãƒãƒ³ãƒ‰ã‚¢ãƒ­ã‚±ãƒ¼ã‚¿ã‚’ç”Ÿæˆ
+    bool CreateFence(); // ãƒ•ã‚§ãƒ³ã‚¹ã‚’ç”Ÿæˆ
+    void CreateViewPort(); // ãƒ“ãƒ¥ãƒ¼ãƒãƒ¼ãƒˆã‚’ç”Ÿæˆ
+    void CreateScissorRect(); //ã‚·ã‚¶ãƒ¼çŸ­å½¢ã‚’ç”Ÿæˆ
 
 private:
-    // •`‰æ‚Ég‚¤DirectX12‚ÌƒIƒuƒWƒFƒNƒg‚½‚¿
+    // æç”»ã«ä½¿ã†DirectX12ã®ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆãŸã¡
     HWND m_hwnd;
     UINT m_framebuffer_width = 0;
     UINT m_framebuffer_height = 0;
     UINT m_currentbackbufferindex = 0;
 
-    ComPtr<ID3D12Device6> mp_device = nullptr; // ƒfƒoƒCƒX
-    ComPtr<ID3D12CommandQueue> mp_queue = nullptr; // ƒRƒ}ƒ“ƒhƒLƒ…[
-    ComPtr<IDXGISwapChain3> mp_swapchain = nullptr; // ƒXƒƒbƒvƒ`ƒFƒCƒ“
-    ComPtr<ID3D12CommandAllocator> mp_allocator[FRAME_BUFFER_COUNT] = {nullptr}; // ƒRƒ}ƒ“ƒhƒAƒƒP[ƒ^
-    ComPtr<ID3D12GraphicsCommandList> mp_commandlist = nullptr; // ƒRƒ}ƒ“ƒhƒŠƒXƒg
-    HANDLE m_fenceevent = nullptr; // ƒtƒFƒ“ƒX‚Åg‚¤ƒCƒxƒ“ƒg
-    ComPtr<ID3D12Fence> mp_fence = nullptr; // ƒtƒFƒ“ƒX
-    UINT64 m_fencevalue[FRAME_BUFFER_COUNT]; // ƒtƒFƒ“ƒX‚Ì’l(ƒ_ƒuƒ‹ƒoƒbƒtƒ@ƒŠƒ“ƒO—p‚É2ŒÂ)
-    D3D12_VIEWPORT m_viewport; // ƒrƒ…[ƒ|[ƒg
-    D3D12_RECT m_scissor; // ƒVƒU[’ZŒ`
+    ComPtr<ID3D12Device6> mp_device = nullptr; // ãƒ‡ãƒã‚¤ã‚¹
+    ComPtr<ID3D12CommandQueue> mp_queue = nullptr; // ã‚³ãƒãƒ³ãƒ‰ã‚­ãƒ¥ãƒ¼
+    ComPtr<IDXGISwapChain3> mp_swapchain = nullptr; // ã‚¹ãƒ¯ãƒƒãƒ—ãƒã‚§ã‚¤ãƒ³
+    ComPtr<ID3D12CommandAllocator> mp_allocator[FRAME_BUFFER_COUNT] = {nullptr}; // ã‚³ãƒãƒ³ãƒ‰ã‚¢ãƒ­ã‚±ãƒ¼ã‚¿
+    ComPtr<ID3D12GraphicsCommandList> mp_commandlist = nullptr; // ã‚³ãƒãƒ³ãƒ‰ãƒªã‚¹ãƒˆ
+    HANDLE m_fenceevent = nullptr; // ãƒ•ã‚§ãƒ³ã‚¹ã§ä½¿ã†ã‚¤ãƒ™ãƒ³ãƒˆ
+    ComPtr<ID3D12Fence> mp_fence = nullptr; // ãƒ•ã‚§ãƒ³ã‚¹
+    UINT64 m_fencevalue[FRAME_BUFFER_COUNT]; // ãƒ•ã‚§ãƒ³ã‚¹ã®å€¤(ãƒ€ãƒ–ãƒ«ãƒãƒƒãƒ•ã‚¡ãƒªãƒ³ã‚°ç”¨ã«2å€‹)
+    D3D12_VIEWPORT m_viewport; // ãƒ“ãƒ¥ãƒ¼ãƒãƒ¼ãƒˆ
+    D3D12_RECT m_scissor; // ã‚·ã‚¶ãƒ¼çŸ­å½¢
 
 private:
-    // •`‰æ‚Ég‚¤ƒIƒuƒWƒFƒNƒg‚Æ‚»‚Ì¶¬ŠÖ”‚½‚¿
-    bool CreateRenderTarget(); // ƒŒƒ“ƒ_[ƒ^[ƒQƒbƒg‚ğ¶¬
-    bool CreateDepthStencil(); // [“xƒXƒeƒ“ƒVƒ‹ƒoƒbƒtƒ@‚ğ¶¬
+    // æç”»ã«ä½¿ã†ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã¨ãã®ç”Ÿæˆé–¢æ•°ãŸã¡
+    bool CreateRenderTarget(); // ãƒ¬ãƒ³ãƒ€ãƒ¼ã‚¿ãƒ¼ã‚²ãƒƒãƒˆã‚’ç”Ÿæˆ
+    bool CreateDepthStencil(); // æ·±åº¦ã‚¹ãƒ†ãƒ³ã‚·ãƒ«ãƒãƒƒãƒ•ã‚¡ã‚’ç”Ÿæˆ
 
-    UINT m_rtvdescriptorsize = 0; // ƒŒƒ“ƒ_[ƒ^[ƒQƒbƒgƒrƒ…[‚ÌƒfƒBƒXƒNƒŠƒvƒ^ƒTƒCƒY
-    ComPtr<ID3D12DescriptorHeap> mp_rtvheap = nullptr; // ƒŒƒ“ƒ_[ƒ^[ƒQƒbƒg‚ÌƒfƒBƒXƒNƒŠƒvƒ^ƒq[ƒv
-    ComPtr<ID3D12Resource> mp_renderTargets[FRAME_BUFFER_COUNT] = {nullptr}; // ƒŒƒ“ƒ_[ƒ^[ƒQƒbƒg(ƒ_ƒuƒ‹ƒoƒbƒtƒ@ƒŠƒ“ƒO‚·‚é‚Ì‚Å2ŒÂ)
+    UINT m_rtvdescriptorsize = 0; // ãƒ¬ãƒ³ãƒ€ãƒ¼ã‚¿ãƒ¼ã‚²ãƒƒãƒˆãƒ“ãƒ¥ãƒ¼ã®ãƒ‡ã‚£ã‚¹ã‚¯ãƒªãƒ—ã‚¿ã‚µã‚¤ã‚º
+    ComPtr<ID3D12DescriptorHeap> mp_rtvheap = nullptr; // ãƒ¬ãƒ³ãƒ€ãƒ¼ã‚¿ãƒ¼ã‚²ãƒƒãƒˆã®ãƒ‡ã‚£ã‚¹ã‚¯ãƒªãƒ—ã‚¿ãƒ’ãƒ¼ãƒ—
+    ComPtr<ID3D12Resource> mp_renderTargets[FRAME_BUFFER_COUNT] = {nullptr}; // ãƒ¬ãƒ³ãƒ€ãƒ¼ã‚¿ãƒ¼ã‚²ãƒƒãƒˆ(ãƒ€ãƒ–ãƒ«ãƒãƒƒãƒ•ã‚¡ãƒªãƒ³ã‚°ã™ã‚‹ã®ã§2å€‹)
 
-    UINT m_dsvdescriptorsize = 0; // [“xƒXƒeƒ“ƒVƒ‹‚ÌƒfƒBƒXƒNƒŠƒvƒ^ƒTƒCƒY
-    ComPtr<ID3D12DescriptorHeap> mp_dsvheap = nullptr; // [“xƒXƒeƒ“ƒVƒ‹‚ÌƒfƒBƒXƒNƒŠƒvƒ^ƒq[ƒv
-    ComPtr<ID3D12Resource> mp_depthstencilbuffer = nullptr; // [“xƒXƒeƒ“ƒVƒ‹ƒoƒbƒtƒ@
+    UINT m_dsvdescriptorsize = 0; // æ·±åº¦ã‚¹ãƒ†ãƒ³ã‚·ãƒ«ã®ãƒ‡ã‚£ã‚¹ã‚¯ãƒªãƒ—ã‚¿ã‚µã‚¤ã‚º
+    ComPtr<ID3D12DescriptorHeap> mp_dsvheap = nullptr; // æ·±åº¦ã‚¹ãƒ†ãƒ³ã‚·ãƒ«ã®ãƒ‡ã‚£ã‚¹ã‚¯ãƒªãƒ—ã‚¿ãƒ’ãƒ¼ãƒ—
+    ComPtr<ID3D12Resource> mp_depthstencilbuffer = nullptr; // æ·±åº¦ã‚¹ãƒ†ãƒ³ã‚·ãƒ«ãƒãƒƒãƒ•ã‚¡
 
 private:
-    // •`‰æƒ‹[ƒv‚Åg—p‚·‚é‚à‚Ì
-    ID3D12Resource *mp_currentrendertarget = nullptr; // Œ»İ‚ÌƒtƒŒ[ƒ€‚ÌƒŒƒ“ƒ_[ƒ^[ƒQƒbƒg‚ğˆê“I‚É•Û‘¶
-    void WaitRender(); // •`‰æŠ®—¹‚ğ‘Ò‚Âˆ—
+    // æç”»ãƒ«ãƒ¼ãƒ—ã§ä½¿ç”¨ã™ã‚‹ã‚‚ã®
+    ID3D12Resource *mp_currentrendertarget = nullptr; // ç¾åœ¨ã®ãƒ•ãƒ¬ãƒ¼ãƒ ã®ãƒ¬ãƒ³ãƒ€ãƒ¼ã‚¿ãƒ¼ã‚²ãƒƒãƒˆã‚’ä¸€æ™‚çš„ã«ä¿å­˜
+    void WaitRender(); // æç”»å®Œäº†ã‚’å¾…ã¤å‡¦ç†
 };
 
-extern Engine *gp_engine; // ‚Ç‚±‚©‚ç‚Å‚àQÆ‚µ‚½‚¢‚Ì‚ÅƒOƒ[ƒoƒ‹‚É‚·‚é
+extern Engine *gp_engine; // ã©ã“ã‹ã‚‰ã§ã‚‚å‚ç…§ã—ãŸã„ã®ã§ã‚°ãƒ­ãƒ¼ãƒãƒ«ã«ã™ã‚‹

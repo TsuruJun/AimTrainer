@@ -1,13 +1,13 @@
 #include "fbxloader.h"
 #include "sharedstruct.h"
-#include <d3dx12.h>
 #include <DirectXMath.h>
+#include <d3dx12.h>
 
 using namespace fbxsdk;
 using namespace std;
 using namespace DirectX;
 
-// string(ƒ}ƒ‹ƒ`ƒoƒCƒg•¶š—ñ)‚©‚çwstring(ƒƒCƒh•¶š—ñ)‚ğ“¾‚é
+// string(ãƒãƒ«ãƒãƒã‚¤ãƒˆæ–‡å­—åˆ—)ã‹ã‚‰wstring(ãƒ¯ã‚¤ãƒ‰æ–‡å­—åˆ—)ã‚’å¾—ã‚‹
 wstring ToWideString(const string &str) {
     auto num1 = MultiByteToWideChar(CP_ACP, MB_PRECOMPOSED | MB_ERR_INVALID_CHARS, str.c_str(), -1, nullptr, 0);
 
@@ -21,63 +21,63 @@ wstring ToWideString(const string &str) {
 }
 
 /// <summary>
-/// Fbxƒtƒ@ƒCƒ‹‚ğƒ[ƒh
+/// Fbxãƒ•ã‚¡ã‚¤ãƒ«ã‚’ãƒ­ãƒ¼ãƒ‰
 /// </summary>
-/// <param name="p_filename">fbxƒtƒ@ƒCƒ‹–¼</param>
-/// <returns>¬Œ÷Ftrue ¸”sFfalse</returns>
+/// <param name="p_filename">fbxãƒ•ã‚¡ã‚¤ãƒ«å</param>
+/// <returns>æˆåŠŸï¼štrue å¤±æ•—ï¼šfalse</returns>
 bool FbxLoader::FbxLoad(const char *file_name) {
-    // FbxManegerì¬
+    // FbxManegerä½œæˆ
     mp_fbx_manager = FbxManager::Create();
     if (mp_fbx_manager == nullptr) {
-        printf("Fbxƒ}ƒl[ƒWƒƒ[‚Ìì¬‚É¸”s");
+        printf("Fbxãƒãƒãƒ¼ã‚¸ãƒ£ãƒ¼ã®ä½œæˆã«å¤±æ•—");
 
         return false;
     }
 
-    // FbxImporterì¬
+    // FbxImporterä½œæˆ
     mp_fbx_importer = FbxImporter::Create(mp_fbx_manager, "FbxImporter");
     if (mp_fbx_importer == nullptr) {
-        printf("FbxƒCƒ“ƒ|[ƒ^[‚Ìì¬‚É¸”s");
+        printf("Fbxã‚¤ãƒ³ãƒãƒ¼ã‚¿ãƒ¼ã®ä½œæˆã«å¤±æ•—");
         Destroy();
 
         return false;
     }
 
-    // FbxSceneì¬
+    // FbxSceneä½œæˆ
     mp_fbx_scene = FbxScene::Create(mp_fbx_manager, "FbxScene");
     if (mp_fbx_scene == nullptr) {
-        printf("FbxƒV[ƒ“‚Ìì¬‚É¸”s");
+        printf("Fbxã‚·ãƒ¼ãƒ³ã®ä½œæˆã«å¤±æ•—");
         Destroy();
 
         return false;
     }
 
-    // ƒtƒ@ƒCƒ‹‰Šú‰»
+    // ãƒ•ã‚¡ã‚¤ãƒ«åˆæœŸåŒ–
     if (mp_fbx_importer->Initialize(file_name) == false) {
-        printf("ƒtƒ@ƒCƒ‹‚Ì‰Šú‰»‚É¸”s");
+        printf("ãƒ•ã‚¡ã‚¤ãƒ«ã®åˆæœŸåŒ–ã«å¤±æ•—");
         Destroy();
 
         return false;
     }
 
-    // ƒtƒ@ƒCƒ‹ƒCƒ“ƒ|[ƒg
+    // ãƒ•ã‚¡ã‚¤ãƒ«ã‚¤ãƒ³ãƒãƒ¼ãƒˆ
     if (mp_fbx_importer->Import(mp_fbx_scene) == false) {
-        printf("ƒtƒ@ƒCƒ‹‚ÌƒCƒ“ƒ|[ƒg‚É¸”s");
+        printf("ãƒ•ã‚¡ã‚¤ãƒ«ã®ã‚¤ãƒ³ãƒãƒ¼ãƒˆã«å¤±æ•—");
         Destroy();
 
         return false;
     }
 
-    // ƒ|ƒŠƒSƒ“‚ğOŠpŒ`‚É‚·‚é
+    // ãƒãƒªã‚´ãƒ³ã‚’ä¸‰è§’å½¢ã«ã™ã‚‹
     FbxGeometryConverter converter(mp_fbx_manager);
     converter.Triangulate(mp_fbx_scene, true);
 
-    // Meshæ“¾
+    // Meshå–å¾—
     int meshcount = mp_fbx_scene->GetSrcObjectCount<FbxMesh>();
-    vector<FbxMesh *>fbx_meshes; // Fbxƒtƒ@ƒCƒ‹‚©‚çæ‚èo‚µ‚½Mesh‚ÌŠi”[êŠ
+    vector<FbxMesh *> fbx_meshes; // Fbxãƒ•ã‚¡ã‚¤ãƒ«ã‹ã‚‰å–ã‚Šå‡ºã—ãŸMeshã®æ ¼ç´å ´æ‰€
     fbx_meshes.resize(meshcount);
 
-    // Materialæ“¾
+    // Materialå–å¾—
     vector<FbxSurfaceMaterial *> fbx_materials;
     fbx_materials.resize(meshcount);
 
@@ -91,99 +91,98 @@ bool FbxLoader::FbxLoad(const char *file_name) {
 
     m_meshes.clear();
     m_meshes.resize(meshcount);
-    // ŠeƒƒbƒVƒ…‚ğ‘ÎÛ‚ÉADirectX‚Åg‚¦‚é‚æ‚¤‚É•ÏŠ·
+    // å„ãƒ¡ãƒƒã‚·ãƒ¥ã‚’å¯¾è±¡ã«ã€DirectXã§ä½¿ãˆã‚‹ã‚ˆã†ã«å¤‰æ›
     for (size_t i = 0; i < fbx_meshes.size(); ++i) {
-        // ƒƒbƒVƒ…æ“¾
+        // ãƒ¡ãƒƒã‚·ãƒ¥å–å¾—
         FbxMesh *p_mesh = fbx_meshes[i];
-        // ƒ}ƒeƒŠƒAƒ‹æ“¾
+        // ãƒãƒ†ãƒªã‚¢ãƒ«å–å¾—
         FbxSurfaceMaterial *p_material = fbx_materials[i];
 
         Vertex vertex = {};
 
-
-        // ’¸“_ƒoƒbƒtƒ@æ“¾
+        // é ‚ç‚¹ãƒãƒƒãƒ•ã‚¡å–å¾—
         FbxVector4 *p_vertices = p_mesh->GetControlPoints();
 
-        // ƒCƒ“ƒfƒbƒNƒXƒoƒbƒtƒ@æ“¾
+        // ã‚¤ãƒ³ãƒ‡ãƒƒã‚¯ã‚¹ãƒãƒƒãƒ•ã‚¡å–å¾—
         int *p_indices = p_mesh->GetPolygonVertices();
 
-        // –@üƒŠƒXƒgæ“¾
+        // æ³•ç·šãƒªã‚¹ãƒˆå–å¾—
         FbxArray<FbxVector4> normals;
         p_mesh->GetPolygonVertexNormals(normals);
 
-        // UVSet‚Ì–¼‘O•Û‘¶—p
+        // UVSetã®åå‰ä¿å­˜ç”¨
         FbxStringList uvset_names;
-        // UVSet‚Ì–¼‘OƒŠƒXƒg‚ğæ“¾
+        // UVSetã®åå‰ãƒªã‚¹ãƒˆã‚’å–å¾—
         p_mesh->GetUVSetNames(uvset_names);
-        // “ü‚ê•¨ì¬
+        // å…¥ã‚Œç‰©ä½œæˆ
         FbxArray<FbxVector2> uvs;
-        // UVSetæ“¾
+        // UVSetå–å¾—
         p_mesh->GetPolygonVertexUVs(uvset_names.GetStringAt(0), uvs);
 
-        // ƒJƒ‰[æ“¾
+        // ã‚«ãƒ©ãƒ¼å–å¾—
         FbxDouble3 color;
         FbxDouble factor;
         if (p_material->GetClassId().Is(FbxSurfaceLambert::ClassId)) {
-            FbxProperty prop = p_material->FindProperty(FbxSurfaceMaterial::sDiffuse); // DiffuseƒvƒƒpƒeƒB‚ğæ“¾
+            FbxProperty prop = p_material->FindProperty(FbxSurfaceMaterial::sDiffuse); // Diffuseãƒ—ãƒ­ãƒ‘ãƒ†ã‚£ã‚’å–å¾—
             color = prop.Get<FbxDouble3>();
 
-            prop = p_material->FindProperty(FbxSurfaceMaterial::sDiffuseFactor); // DiffuseFactor(d‚İ)ƒvƒƒpƒeƒB‚ğæ“¾
+            prop = p_material->FindProperty(FbxSurfaceMaterial::sDiffuseFactor); // DiffuseFactor(é‡ã¿)ãƒ—ãƒ­ãƒ‘ãƒ†ã‚£ã‚’å–å¾—
             factor = prop.Get<FbxDouble>();
         }
 
-        // TODO: tangent‚Ìæ“¾•û–@‚ª”»–¾‚µ‚½‚çˆ—‚ğ‹Lq‚·‚é
+        // TODO: tangentã®å–å¾—æ–¹æ³•ãŒåˆ¤æ˜ã—ãŸã‚‰å‡¦ç†ã‚’è¨˜è¿°ã™ã‚‹
 
-        // ’¸“_”æ“¾
+        // é ‚ç‚¹æ•°å–å¾—
         int polygon_vertex_count = p_mesh->GetPolygonVertexCount();
         m_meshes[i].vertices.resize(polygon_vertex_count);
 
-        // Meshî•ñæ“¾
+        // Meshæƒ…å ±å–å¾—
         for (int j = 0; j < polygon_vertex_count; ++j) {
-            // ƒCƒ“ƒfƒbƒNƒXƒoƒbƒtƒ@‚©‚ç’¸“_”Ô†‚ğæ“¾
+            // ã‚¤ãƒ³ãƒ‡ãƒƒã‚¯ã‚¹ãƒãƒƒãƒ•ã‚¡ã‹ã‚‰é ‚ç‚¹ç•ªå·ã‚’å–å¾—
             int index = p_indices[j];
 
-            // æ“¾
-            auto &position = p_vertices[index]; // ’¸“_
+            // å–å¾—
+            auto &position = p_vertices[index]; // é ‚ç‚¹
             auto normal = &normals[j];
             auto uv = &uvs[j];
 
-            // DirectX‚Åg‚¦‚é‚æ‚¤‚É•ÏŠ·
+            // DirectXã§ä½¿ãˆã‚‹ã‚ˆã†ã«å¤‰æ›
             vertex.position = XMFLOAT3(-(static_cast<float>(position[0])), static_cast<float>(position[2]), -static_cast<float>(position[1]));
             vertex.normal = XMFLOAT3(-(static_cast<float>(*normals[0])), static_cast<float>(*normals[1]), -static_cast<float>(*normals[2]));
             vertex.uv = XMFLOAT2(static_cast<float>(*uvs[0]), (1.0f - static_cast<float>(*uvs[1])));
             vertex.color = XMFLOAT4(static_cast<float>(color[0]), static_cast<float>(color[1]), static_cast<float>(color[2]), static_cast<float>(factor));
 
-            // ’Ç‰Á
+            // è¿½åŠ 
             m_meshes[i].vertices[j] = vertex;
         }
 
-        // ƒ|ƒŠƒSƒ“”‚Ìæ“¾
+        // ãƒãƒªã‚´ãƒ³æ•°ã®å–å¾—
         size_t polygon_count = p_mesh->GetPolygonCount();
         m_meshes[i].indices.resize(polygon_count * 3);
-        // ƒCƒ“ƒfƒbƒNƒX”Ô†æ“¾
+        // ã‚¤ãƒ³ãƒ‡ãƒƒã‚¯ã‚¹ç•ªå·å–å¾—
         for (size_t j = 0; j < polygon_count; ++j) {
             m_meshes[i].indices[j * 3] = j * 3 + 2;
             m_meshes[i].indices[j * 3 + 1] = j * 3 + 1;
             m_meshes[i].indices[j * 3 + 2] = j * 3 + 0;
         }
 
-        // ƒeƒNƒXƒ`ƒƒæ“¾
-        FbxProperty prop = p_material->FindProperty(FbxSurfaceMaterial::sDiffuse); // DiffuseƒvƒƒpƒeƒB‚ğæ“¾
+        // ãƒ†ã‚¯ã‚¹ãƒãƒ£å–å¾—
+        FbxProperty prop = p_material->FindProperty(FbxSurfaceMaterial::sDiffuse); // Diffuseãƒ—ãƒ­ãƒ‘ãƒ†ã‚£ã‚’å–å¾—
         FbxFileTexture *p_texture = nullptr;
 
-        // ƒeƒNƒXƒ`ƒƒ“Ç‚İ‚İ
+        // ãƒ†ã‚¯ã‚¹ãƒãƒ£èª­ã¿è¾¼ã¿
         int texture_count = prop.GetSrcObjectCount<FbxFileTexture>();
         if (texture_count > 0) {
             p_texture = prop.GetSrcObject<FbxFileTexture>(0);
         } else {
-            // FbxLayeredTexture‚©‚çFbxFiletexture‚ğæ“¾
+            // FbxLayeredTextureã‹ã‚‰FbxFiletextureã‚’å–å¾—
             int layer_count = prop.GetSrcObjectCount<FbxLayeredTexture>();
             if (layer_count > 0) {
                 p_texture = prop.GetSrcObject<FbxFileTexture>(0);
             }
         }
 
-        // ƒeƒNƒXƒ`ƒƒƒpƒXæ“¾
+        // ãƒ†ã‚¯ã‚¹ãƒãƒ£ãƒ‘ã‚¹å–å¾—
         if (p_texture != nullptr) {
             string file_path = p_texture->GetFileName();
             m_meshes[i].diffusemap = ToWideString(file_path);
@@ -196,27 +195,27 @@ bool FbxLoader::FbxLoad(const char *file_name) {
 }
 
 /// <summary>
-/// FbxManagerAFbxImporterAFbxScene‚ğ”jŠü
+/// FbxManagerã€FbxImporterã€FbxSceneã‚’ç ´æ£„
 /// </summary>
 void FbxLoader::Destroy() {
-    //FbxImporter”jŠü
+    // FbxImporterç ´æ£„
     if (mp_fbx_importer != nullptr) {
         mp_fbx_importer->Destroy();
     }
 
-    // FbxScene‚ğ”jŠü
+    // FbxSceneã‚’ç ´æ£„
     if (mp_fbx_scene != nullptr) {
         mp_fbx_scene->Destroy();
     }
 
-    // FbxManager‚ğ”jŠü
+    // FbxManagerã‚’ç ´æ£„
     if (mp_fbx_manager != nullptr) {
         mp_fbx_manager->Destroy();
     }
 }
 
 /// <summary>
-/// “Ç‚İ‚ñ‚¾fbxƒtƒ@ƒCƒ‹‚ğ“n‚·
+/// èª­ã¿è¾¼ã‚“ã fbxãƒ•ã‚¡ã‚¤ãƒ«ã‚’æ¸¡ã™
 /// </summary>
 /// <returns></returns>
 vector<Mesh> FbxLoader::GetMeshes() {
@@ -224,7 +223,7 @@ vector<Mesh> FbxLoader::GetMeshes() {
 }
 
 /// <summary>
-/// “Ç‚İ‚ñ‚¾fbx‚ğ•Û‚µ‚Ä‚¢‚½•Ï”‚ğƒNƒŠƒA‚·‚é
+/// èª­ã¿è¾¼ã‚“ã fbxã‚’ä¿æŒã—ã¦ã„ãŸå¤‰æ•°ã‚’ã‚¯ãƒªã‚¢ã™ã‚‹
 /// </summary>
 void FbxLoader::ClearMeshes() {
     m_meshes.clear();

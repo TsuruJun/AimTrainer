@@ -1,7 +1,7 @@
 #include "descriptorheap.h"
+#include "engine.h"
 #include "texture2D.h"
 #include <d3dx12.h>
-#include "engine.h"
 
 const UINT HANDLE_MAX = 512;
 
@@ -17,14 +17,14 @@ DescriptorHeap::DescriptorHeap() {
 
     auto device = gp_engine->Device();
 
-    // ƒfƒBƒXƒNƒŠƒvƒ^ƒq[ƒv‚ğì¬
+    // ãƒ‡ã‚£ã‚¹ã‚¯ãƒªãƒ—ã‚¿ãƒ’ãƒ¼ãƒ—ã‚’ä½œæˆ
     auto hresult = device->CreateDescriptorHeap(&desc, IID_PPV_ARGS(mp_heap.ReleaseAndGetAddressOf()));
     if (FAILED(hresult)) {
         m_isvalid = false;
         return;
     }
 
-    m_increment_size = device->GetDescriptorHandleIncrementSize(desc.Type); // ƒfƒBƒXƒNƒŠƒvƒ^ƒq[ƒv1ŒÂ‚Ìƒƒ‚ƒŠƒTƒCƒY‚ğ•Ô‚·
+    m_increment_size = device->GetDescriptorHandleIncrementSize(desc.Type); // ãƒ‡ã‚£ã‚¹ã‚¯ãƒªãƒ—ã‚¿ãƒ’ãƒ¼ãƒ—1å€‹ã®ãƒ¡ãƒ¢ãƒªã‚µã‚¤ã‚ºã‚’è¿”ã™
     m_isvalid = true;
 }
 
@@ -40,18 +40,18 @@ DescriptorHandle *DescriptorHeap::Register(Texture2D *texture) {
 
     DescriptorHandle *p_handle = new DescriptorHandle();
 
-    auto handle_CPU = mp_heap->GetCPUDescriptorHandleForHeapStart(); // ƒfƒBƒXƒNƒŠƒvƒ^ƒq[ƒv‚ÌÅ‰‚ÌƒAƒhƒŒƒX
-    handle_CPU.ptr += m_increment_size * count; // Å‰‚ÌƒAƒhƒŒƒX‚©‚çcount”Ô–Ú‚ª¡‰ñ’Ç‰Á‚³‚ê‚½ƒŠƒ\[ƒX‚Ìƒnƒ“ƒhƒ‹
+    auto handle_CPU = mp_heap->GetCPUDescriptorHandleForHeapStart(); // ãƒ‡ã‚£ã‚¹ã‚¯ãƒªãƒ—ã‚¿ãƒ’ãƒ¼ãƒ—ã®æœ€åˆã®ã‚¢ãƒ‰ãƒ¬ã‚¹
+    handle_CPU.ptr += m_increment_size * count; // æœ€åˆã®ã‚¢ãƒ‰ãƒ¬ã‚¹ã‹ã‚‰countç•ªç›®ãŒä»Šå›è¿½åŠ ã•ã‚ŒãŸãƒªã‚½ãƒ¼ã‚¹ã®ãƒãƒ³ãƒ‰ãƒ«
 
-    auto handle_GPU = mp_heap->GetGPUDescriptorHandleForHeapStart(); // ƒfƒBƒXƒNƒŠƒvƒ^ƒq[ƒv‚ÌÅ‰‚ÌƒAƒhƒŒƒX
-    handle_GPU.ptr += m_increment_size * count; // Å‰‚ÌƒAƒhƒŒƒX‚©‚çcount”Ô–Ú‚ª¡‰ñ’Ç‰Á‚³‚ê‚½ƒŠƒ\[ƒX‚Ìƒnƒ“ƒhƒ‹
+    auto handle_GPU = mp_heap->GetGPUDescriptorHandleForHeapStart(); // ãƒ‡ã‚£ã‚¹ã‚¯ãƒªãƒ—ã‚¿ãƒ’ãƒ¼ãƒ—ã®æœ€åˆã®ã‚¢ãƒ‰ãƒ¬ã‚¹
+    handle_GPU.ptr += m_increment_size * count; // æœ€åˆã®ã‚¢ãƒ‰ãƒ¬ã‚¹ã‹ã‚‰countç•ªç›®ãŒä»Šå›è¿½åŠ ã•ã‚ŒãŸãƒªã‚½ãƒ¼ã‚¹ã®ãƒãƒ³ãƒ‰ãƒ«
 
     p_handle->m_handle_CPU = handle_CPU;
     p_handle->m_handle_GPU = handle_GPU;
 
     auto resource = texture->Resource();
     auto desc = texture->ViewDesc();
-    gp_engine->Device()->CreateShaderResourceView(resource, &desc, p_handle->m_handle_CPU); // ƒVƒF[ƒ_[ƒŠƒ\[ƒXƒrƒ…[ì¬
+    gp_engine->Device()->CreateShaderResourceView(resource, &desc, p_handle->m_handle_CPU); // ã‚·ã‚§ãƒ¼ãƒ€ãƒ¼ãƒªã‚½ãƒ¼ã‚¹ãƒ“ãƒ¥ãƒ¼ä½œæˆ
 
     mp_handles.emplace_back(p_handle);
     return p_handle;
