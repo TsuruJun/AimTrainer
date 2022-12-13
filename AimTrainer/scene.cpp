@@ -32,7 +32,11 @@ PipelineState *gp_pipelinestate;
 DescriptorHeap *gp_descriptor_heap;
 
 float rotateX = 0.0f;
-const char *gp_mode = "+";
+
+// プレイヤーの位置
+float position_x = 0.0f;
+float position_y = 0.0f;
+float position_z = -0.0f;
 
 vector<vector<Mesh>> g_objects; // メッシュの配列
 vector<vector<VertexBuffer *>> gp_vertex_buffers; // メッシュの数分の頂点バッファ
@@ -159,6 +163,29 @@ void Scene::Update() {
 
     gp_constantbuffer[currentindex * model_list.size() + 0]->GetPtr<Transform>()->world = XMMatrixTranslation(rotateX, 0, 0); // enemy_bot
     gp_constantbuffer[currentindex * model_list.size() + 1]->GetPtr<Transform>()->world = XMMatrixTranslation(0, 0, -rotateX); // bullet
+
+    // WASDで移動
+    // 前
+    if (GetKeyState('W') & 0x80) {
+        position_z += 0.05f;
+    }
+    // 後ろ
+    if (GetKeyState('S') & 0x80) {
+        position_z -= 0.05f;
+    }
+    // 左
+    if (GetKeyState('A') & 0x80) {
+        position_x += 0.05f;
+    }
+    // 右
+    if (GetKeyState('D') & 0x80) {
+        position_x -= 0.05f;
+    }
+
+    // オブジェクトを動かして移動したように見せる
+    gp_constantbuffer[currentindex * model_list.size() + 0]->GetPtr<Transform>()->world = XMMatrixTranslation(position_x, 0, position_z - 10.0f);
+    gp_constantbuffer[currentindex * model_list.size() + 1]->GetPtr<Transform>()->world = XMMatrixTranslation(position_x, 0, position_z + 4.0f);
+    gp_constantbuffer[currentindex * model_list.size() + 2]->GetPtr<Transform>()->world = XMMatrixTranslation(position_x, 0, position_z + 8.0f);
 }
 
 void Scene::Draw() {
