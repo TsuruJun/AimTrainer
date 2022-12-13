@@ -161,9 +161,6 @@ void Scene::Update() {
     // EnemyBotを往復させる
     auto currentindex = gp_engine->CurrentBackBufferIndex(); // 現在のフレーム番号を取得する
 
-    gp_constantbuffer[currentindex * model_list.size() + 0]->GetPtr<Transform>()->world = XMMatrixTranslation(rotateX, 0, 0); // enemy_bot
-    gp_constantbuffer[currentindex * model_list.size() + 1]->GetPtr<Transform>()->world = XMMatrixTranslation(0, 0, -rotateX); // bullet
-
     // WASDで移動
     // 前
     if (GetKeyState('W') & 0x80) {
@@ -183,9 +180,9 @@ void Scene::Update() {
     }
 
     // オブジェクトを動かして移動したように見せる
-    gp_constantbuffer[currentindex * model_list.size() + 0]->GetPtr<Transform>()->world = XMMatrixTranslation(position_x, 0, position_z - 10.0f);
-    gp_constantbuffer[currentindex * model_list.size() + 1]->GetPtr<Transform>()->world = XMMatrixTranslation(position_x, 0, position_z + 4.0f);
-    gp_constantbuffer[currentindex * model_list.size() + 2]->GetPtr<Transform>()->world = XMMatrixTranslation(position_x, 0, position_z + 8.0f);
+    gp_constantbuffer[currentindex * model_list.size() + 0]->GetPtr<Transform>()->world = XMMatrixTranslation(position_x + rotateX, 0, position_z - 10.0f); // enemy_bot
+    gp_constantbuffer[currentindex * model_list.size() + 1]->GetPtr<Transform>()->world = XMMatrixTranslation(position_x, 0, position_z + 4.0f - rotateX); // bullet
+    gp_constantbuffer[currentindex * model_list.size() + 2]->GetPtr<Transform>()->world = XMMatrixTranslation(position_x, 0, position_z + 8.0f); // sight
 }
 
 void Scene::Draw() {
