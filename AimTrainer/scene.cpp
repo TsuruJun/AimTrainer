@@ -32,6 +32,7 @@ PipelineState *gp_pipelinestate;
 DescriptorHeap *gp_descriptor_heap;
 
 float rotateX = 0.0f;
+float yaw = 0.0f;
 
 // プレイヤーの位置
 float position_x = 0.0f;
@@ -109,11 +110,11 @@ bool Scene::Init() {
     }
 
     // カメラ設定
-    auto eyeposition = XMVectorSet(0.0f, 0.0f, 10.0f, 0.0f); // 視点の位置
-    auto targetposition = XMVectorSet(0.0f, 0.0f, 0.0f, 0.0f);// 視点を向ける座標
-    auto upward = XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f); // 上方向を表すベクトル
+    const XMFLOAT3 eyeposition = {0.0f, 1.0f, 0.0f}; // 視点の位置
+    const XMFLOAT3 targetposition = {0.0f + eyeposition.x, 1.0f, 1.0f + eyeposition.z};// 視点を向ける座標
+    const XMFLOAT3 upward = {0.0f, 1.0f, 0.0f}; // 上方向を表すベクトル
     constexpr auto fov = XMConvertToRadians(100.0f); // 視野角
-    auto aspect = static_cast<float>(WINDOW_WIDTH) / static_cast<float>(WINDOW_HEIGHT); // アスペクト比
+    constexpr auto aspect = static_cast<float>(WINDOW_WIDTH) / static_cast<float>(WINDOW_HEIGHT); // アスペクト比
 
     for (size_t i = 0; i < Engine::FRAME_BUFFER_COUNT * model_list.size(); ++i) {
         gp_constantbuffer[i] = new ConstantBuffer(sizeof(Transform));
@@ -125,14 +126,14 @@ bool Scene::Init() {
         // 変換行列の登録
         auto ptr = gp_constantbuffer[i]->GetPtr<Transform>();
         if (i % model_list.size() == 0) { // enemy_bot
-            ptr->world = XMMatrixIdentity() * XMMatrixTranslation(0, 0, -10.0f);
+            ptr->world = XMMatrixIdentity() * XMMatrixTranslation(0.0f, 0.0f, 10.0f);
         } else if (i % model_list.size() == 1) { // bullet
-            ptr->world = XMMatrixIdentity() * XMMatrixTranslation(0, 0, 4.0f);
+            ptr->world = XMMatrixIdentity() * XMMatrixTranslation(0.0f, 1.0f, 6.0f);
         } else { // sight
-            ptr->world = XMMatrixIdentity() * XMMatrixTranslation(0, 0, 8.0f);
+            ptr->world = XMMatrixIdentity() * XMMatrixTranslation(0.0f, 1.0f, 2.0f);
         }
-        ptr->view = XMMatrixLookAtRH(eyeposition, targetposition, upward);
-        ptr->proj = XMMatrixPerspectiveFovRH(fov, aspect, 0.3f, 1000.f);
+        ptr->view = XMMatrixLookAtLH(XMLoadFloat3(&eyeposition), XMLoadFloat3(&targetposition), XMLoadFloat3(&upward));
+        ptr->proj = XMMatrixPerspectiveFovLH(fov, aspect, 0.3f, 1000.f);
     }
 
     gp_rootsignature = new RootSignature();
@@ -157,12 +158,9 @@ bool Scene::Init() {
 }
 
 void Scene::Update() {
-    rotateX += 0.001f;
-    // EnemyBotを往復させる
     auto currentindex = gp_engine->CurrentBackBufferIndex(); // 現在のフレーム番号を取得する
 
-    // WASDで移動
-    // 前
+    // カメラの移動
     if (GetKeyState('W') & 0x80) {
         position_z += 0.05f;
     }
@@ -172,30 +170,41 @@ void Scene::Update() {
     }
     // 左
     if (GetKeyState('A') & 0x80) {
-        position_x += 0.05f;
+        position_x -= 0.05f;
     }
     // 右
     if (GetKeyState('D') & 0x80) {
-        position_x -= 0.05f;
+        position_x += 0.05f;
     }
+    XMFLOAT3 eyeposition = {0.0f, 1.0f, 0.0f};
 
-    // オブジェクトを動かして移動したように見せる
-    gp_constantbuffer[currentindex * model_list.size() + 0]->GetPtr<Transform>()->world = XMMatrixTranslation(position_x + rotateX, 0, position_z - 10.0f); // enemy_bot
-    gp_constantbuffer[currentindex * model_list.size() + 1]->GetPtr<Transform>()->world = XMMatrixTranslation(position_x, 0, position_z + 4.0f - rotateX); // bullet
-    gp_constantbuffer[currentindex * model_list.size() + 2]->GetPtr<Transform>()->world = XMMatrixTranslation(position_x, 0, position_z + 8.0f); // sight
+    eyeposition.x += position_x;
+    eyeposition.z += position_z;
+
+    const XMFLOAT3 targetposition = {0.0f + eyeposition.x, 1.0f, 1.0f + eyeposition.z};
+    const XMFLOAT3 upward = {0.0f, 1.0f, 0.0f};
+
+    const XMMATRIX view = XMMatrixLookAtLH(XMLoadFloat3(&eyeposition), XMLoadFloat3(&targetposition), XMLoadFloat3(&upward));
+
+    gp_constantbuffer[currentindex * model_list.size() + 0]->GetPtr<Transform>()->view = view; // enemy_bot
+    gp_constantbuffer[currentindex * model_list.size() + 1]->GetPtr<Transform>()->view = view; // bullet
+    gp_constantbuffer[currentindex * model_list.size() + 2]->GetPtr<Transform>()->view = view; // sight
+
+    // カメラに合わせてサイトを移動
+    gp_constantbuffer[currentindex * model_list.size() + 2]->GetPtr<Transform>()->world = XMMatrixTranslation(position_x, 1.0f, position_z + 2.0f); // sight
 }
 
 void Scene::Draw() {
-    auto currentindex = gp_engine->CurrentBackBufferIndex(); // 現在のフレーム番号を取得する
-    auto commandlist = gp_engine->CommandList(); // コマンドリスト
+    const auto currentindex = gp_engine->CurrentBackBufferIndex(); // 現在のフレーム番号を取得する
+    const auto commandlist = gp_engine->CommandList(); // コマンドリスト
     auto material_heap = gp_descriptor_heap->GetHeap(); // ディスクリプタヒープ
 
     // モデルの数だけ描画
     for (int count = 0; count < g_objects.size(); ++count) {
         // メッシュの数だけインデックス分の描画を処理を行う処理を回す
         for (size_t i = 0; i < g_objects[count].size(); ++i) {
-            auto vertexbufferview = gp_vertex_buffers[count][i]->View(); // 頂点バッファビュー
-            auto indexbufferview = gp_index_buffers[count][i]->View(); // インデックスバッファビュー
+            const auto vertexbufferview = gp_vertex_buffers[count][i]->View(); // 頂点バッファビュー
+            const auto indexbufferview = gp_index_buffers[count][i]->View(); // インデックスバッファビュー
 
             commandlist->SetGraphicsRootSignature(gp_rootsignature->Get()); // ルートシグネチャをセット
             commandlist->SetPipelineState(gp_pipelinestate->Get()); // パイプラインステートをセット
