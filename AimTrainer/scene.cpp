@@ -161,13 +161,6 @@ bool Scene::Init() {
 
     printf("シーンの初期化に成功");
 
-    //// 試しに弾丸を削除
-    //g_objects.pop_back();
-    //g_vertex_buffers.pop_back();
-    //g_index_buffers.pop_back();
-    //g_material_handles.pop_back();
-    //gp_constantbuffers.erase(gp_constantbuffers.begin() + 2);
-    //gp_constantbuffers.pop_back();
     return true;
 }
 
@@ -188,34 +181,10 @@ void Scene::Update() {
     const XMFLOAT3 targetposition = {diff_x + eyeposition.x, 1.0f - diff_y, 1.0f + eyeposition.z};
     const XMFLOAT3 upward = {0.0f, 1.0f, 0.0f};
 
-    //// カメラの移動
-    //if (GetKeyState('W') & 0x80) {
-    //    position_z += 0.05f;
-    //}
-    //// 後ろ
-    //if (GetKeyState('S') & 0x80) {
-    //    position_z -= 0.05f;
-    //}
-    //// 左
-    //if (GetKeyState('A') & 0x80) {
-    //    position_x -= 0.05f;
-    //}
-    //// 右
-    //if (GetKeyState('D') & 0x80) {
-    //    position_x += 0.05f;
-    //}
-
-    //eyeposition.x += position_x;
-    //eyeposition.z += position_z;
-
     const XMMATRIX view = XMMatrixLookAtLH(XMLoadFloat3(&eyeposition), XMLoadFloat3(&targetposition), XMLoadFloat3(&upward));
 
     gp_constantbuffers[currentindex + 0]->GetPtr<Transform>()->view = view; // enemy_bot
     gp_constantbuffers[currentindex + 2]->GetPtr<Transform>()->view = view; // sight
-
-    // カメラに合わせてサイトを移動
-    // TODO: ローカル座標で動かしてワールド座標に変換し入れたい
-    //gp_constantbuffers[currentindex * g_objects.size() + 1]->GetPtr<Transform>()->world = XMMatrixTranslation(diff_x, 1.0f - diff_y, 2.0f + eyeposition.z); // sight
 }
 
 void Scene::Draw() {
