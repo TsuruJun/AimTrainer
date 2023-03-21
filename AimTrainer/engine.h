@@ -24,6 +24,7 @@ public:
     ID3D12Device6 *Device();
     ID3D12GraphicsCommandList *CommandList();
     UINT CurrentBackBufferIndex();
+    HWND GetHwnd();
 
 private:
     // DirextX12初期化に使う関数たち

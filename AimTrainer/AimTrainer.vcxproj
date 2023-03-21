@@ -30,6 +30,7 @@
     <ClInclude Include="rootsignature.h" />
     <ClInclude Include="scene.h" />
     <ClInclude Include="sharedstruct.h" />
+    <ClInclude Include="shooting.h" />
     <ClInclude Include="texture2D.h" />
     <ClInclude Include="vertexbuffer.h" />
   </ItemGroup>
@@ -46,6 +47,7 @@
     <ClCompile Include="rootsignature.cpp" />
     <ClCompile Include="scene.cpp" />
     <ClCompile Include="sharedstruct.cpp" />
+    <ClCompile Include="shooting.cpp" />
     <ClCompile Include="texture2D.cpp" />
     <ClCompile Include="vertexbuffer.cpp" />
   </ItemGroup>

@@ -54,6 +54,9 @@
     <ClInclude Include="texture2D.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
+    <ClInclude Include="shooting.h">
+      <Filter>ヘッダー ファイル</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="app.cpp">
@@ -96,6 +99,9 @@
       <Filter>ソース ファイル</Filter>
     </ClCompile>
     <ClCompile Include="enemybot.cpp">
+      <Filter>ソース ファイル</Filter>
+    </ClCompile>
+    <ClCompile Include="shooting.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
   </ItemGroup>

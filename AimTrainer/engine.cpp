@@ -121,6 +121,10 @@ UINT Engine::CurrentBackBufferIndex() {
     return m_currentbackbufferindex;
 }
 
+HWND Engine::GetHwnd() {
+    return m_hwnd;
+}
+
 bool Engine::CreateDevice() {
     auto hresult = D3D12CreateDevice(nullptr, D3D_FEATURE_LEVEL_12_1, IID_PPV_ARGS(mp_device.ReleaseAndGetAddressOf()));
     return SUCCEEDED(hresult);
