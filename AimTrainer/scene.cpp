@@ -26,7 +26,6 @@ vector<const char *> model_list{
 
 Scene *gp_scene;
 // シーンのメンバに持たせる
-vector<ConstantBuffer *> gp_constantbuffers(Engine::FRAME_BUFFER_COUNT * 2);
 RootSignature *gp_rootsignature;
 PipelineState *gp_pipelinestate;
 DescriptorHeap *gp_descriptor_heap;
@@ -45,9 +44,6 @@ int mouse_position_x = 0;
 int mouse_position_y = 0;
 
 vector<vector<Mesh>> g_objects; // メッシュの配列
-vector<vector<VertexBuffer *>> g_vertex_buffers; // メッシュの数分の頂点バッファ
-vector<vector<IndexBuffer *>> g_index_buffers; // メッシュの数分のインデックスバッファ
-vector<vector<DescriptorHandle *>> g_material_handles; // テクスチャ用のハンドル一覧
 
 Shooting g_shooting;
 
