@@ -25,9 +25,8 @@ vector<const char *> model_list{
     "C:\\Users\\TsuruJun\\source\\repos\\Model\\fbx\\bullet.fbx"};
 
 Scene *gp_scene;
-VertexBuffer *gp_vertexbuffer;
+// シーンのメンバに持たせる
 vector<ConstantBuffer *> gp_constantbuffers(Engine::FRAME_BUFFER_COUNT * 2);
-IndexBuffer *gp_indexbuffer;
 RootSignature *gp_rootsignature;
 PipelineState *gp_pipelinestate;
 DescriptorHeap *gp_descriptor_heap;
@@ -52,69 +51,57 @@ vector<vector<DescriptorHandle *>> g_material_handles; // テクスチャ用の�
 
 Shooting g_shooting;
 
+vector<OnSceneObject> on_scene_objects;
+
 // 拡張子を置き換える処理
 wstring ReplaceExtension(const wstring &origin, const char *extention) {
     fs::path path = origin.c_str();
     return path.replace_extension(extention).c_str();
 }
 
+bool Scene::AddObjectToScene(vector<Mesh> &object, vector<OnSceneObject> &on_scene_objects, float init_x, float init_y, float init_z) {
+    OnSceneObject on_scene_object = {};
 
-bool Scene::Init() {
-    FbxLoader loader;
+    // オブジェクトのポインタを保存
+    for (size_t i = 0; i < object.size(); ++i) {
+        on_scene_object.object.emplace_back(&object[i]);
+    }
 
-    // 各バッファのサイズを初期化
-    g_vertex_buffers.resize(2);
-    g_index_buffers.resize(2);
-    g_material_handles.resize(2);
-
-    // モデルごとに読み込む
-    for (int count = 0; count < 2; ++count) {
-        // モデル読み込み
-        if (!loader.FbxLoad(model_list[count])) {
-            printf("モデルの読み込みに失敗");
+    // メッシュの数だけ頂点バッファを用意する
+    for (size_t i = 0; i < object.size(); ++i) {
+        auto size = sizeof(Vertex) * object[i].vertices.size();
+        auto stride = sizeof(Vertex);
+        auto vertices = object[i].vertices.data();
+        auto p_vertex_buffer = new VertexBuffer(size, stride, vertices);
+        if (!p_vertex_buffer->IsValid()) {
+            printf("頂点バッファの生成に失敗\n");
             return false;
         }
-        g_objects.emplace_back(loader.GetMeshes());
-        loader.ClearMeshes();
 
-        // メッシュの数だけ頂点バッファを用意する
-        g_vertex_buffers[count].reserve(g_objects[count].size());
-        for (size_t i = 0; i < g_objects[count].size(); ++i) {
-            auto size = sizeof(Vertex) * g_objects[count][i].vertices.size();
-            auto stride = sizeof(Vertex);
-            auto vertices = g_objects[count][i].vertices.data();
-            auto p_vertex_buffer = new VertexBuffer(size, stride, vertices);
-            if (!p_vertex_buffer->IsValid()) {
-                printf("頂点バッファの生成に失敗\n");
-                return false;
-            }
+        on_scene_object.vertex_buffer.emplace_back(p_vertex_buffer);
+    }
 
-            g_vertex_buffers[count].emplace_back(p_vertex_buffer);
+    // メッシュの数だけインデックスバッファを用意する
+    for (size_t i = 0; i < object.size(); ++i) {
+        auto size = sizeof(uint32_t) * object[i].indices.size();
+        auto indices = object[i].indices.data();
+        auto p_index_buffer = new IndexBuffer(size, indices);
+        if (!p_index_buffer->IsValid()) {
+            printf("インデックスバッファの生成に失敗");
+            return false;
         }
 
-        // メッシュの数だけインデックスバッファを用意する
-        g_index_buffers[count].reserve(g_objects[count].size());
-        for (size_t i = 0; i < g_objects[count].size(); ++i) {
-            auto size = sizeof(uint32_t) * g_objects[count][i].indices.size();
-            auto indices = g_objects[count][i].indices.data();
-            auto p_index_buffer = new IndexBuffer(size, indices);
-            if (!p_index_buffer->IsValid()) {
-                printf("インデックスバッファの生成に失敗");
-                return false;
-            }
+        on_scene_object.index_buffer.emplace_back(p_index_buffer);
+    }
 
-            g_index_buffers[count].emplace_back(p_index_buffer);
-        }
+    // マテリアル読み込み
+    gp_descriptor_heap = new DescriptorHeap();
 
-        // マテリアル読み込み
-        gp_descriptor_heap = new DescriptorHeap();
-
-        for (size_t i = 0; i < g_objects[count].size(); ++i) {
-            auto texture_path = ReplaceExtension(g_objects[count][i].diffusemap, "tga"); // // もともとはpsdになっていてちょっとめんどかったので、同梱されているtgaを読み込む
-            auto main_texture = Texture2D::Get(texture_path);
-            auto handle = gp_descriptor_heap->Register(main_texture);
-            g_material_handles[count].emplace_back(handle);
-        }
+    for (size_t i = 0; i < object.size(); ++i) {
+        auto texture_path = ReplaceExtension(object[i].diffusemap, "tga"); // // もともとはpsdになっていてちょっとめんどかったので、同梱されているtgaを読み込む
+        auto main_texture = Texture2D::Get(texture_path);
+        auto handle = gp_descriptor_heap->Register(main_texture);
+        on_scene_object.material_handle.emplace_back(handle);
     }
 
     // カメラ設定
@@ -124,23 +111,43 @@ bool Scene::Init() {
     constexpr auto fov = XMConvertToRadians(52.0f); // 視野角
     constexpr auto aspect = static_cast<float>(WINDOW_WIDTH) / static_cast<float>(WINDOW_HEIGHT); // アスペクト比
 
-    for (size_t i = 0; i < Engine::FRAME_BUFFER_COUNT * 2; ++i) {
-        gp_constantbuffers[i] = new ConstantBuffer(sizeof(Transform));
-        if (!gp_constantbuffers[i]->IsValid()) {
+    for (size_t i = 0; i < Engine::FRAME_BUFFER_COUNT; ++i) {
+        on_scene_object.constantbuffers.emplace_back(new ConstantBuffer(sizeof(Transform)));
+        if (!on_scene_object.constantbuffers[i]->IsValid()) {
             printf("変換行列用定数バッファの生成に失敗");
             return false;
         }
 
         // 変換行列の登録
-        auto ptr = gp_constantbuffers[i]->GetPtr<Transform>();
-        if (i == 0 || i == 1) { // enemy_bot
-            ptr->world = XMMatrixIdentity() * XMMatrixTranslation(0.0f, 0.0f, 100.0f);
-        } else if (i == 2 || i == 3) { // sight
-            ptr->world = XMMatrixIdentity() * XMMatrixTranslation(0.0f, 1.0f, 3.0f);
-        }
+        auto ptr = on_scene_object.constantbuffers[i]->GetPtr<Transform>();
+        ptr->world = XMMatrixIdentity() * XMMatrixTranslation(init_x, init_y, init_z);
         ptr->view = XMMatrixLookAtLH(XMLoadFloat3(&eyeposition), XMLoadFloat3(&targetposition), XMLoadFloat3(&upward));
         ptr->proj = XMMatrixPerspectiveFovLH(fov, aspect, 0.3f, 1000.f);
     }
+
+    on_scene_objects.emplace_back(on_scene_object);
+
+    return true;
+}
+
+bool Scene::Init() {
+    FbxLoader loader;
+
+    // モデルを読み込む
+    for (int i = 0; i < model_list.size(); ++i) {
+        // モデル読み込み
+        if (!loader.FbxLoad(model_list[i])) {
+            printf("モデルの読み込みに失敗");
+            return false;
+        }
+        g_objects.emplace_back(loader.GetMeshes());
+        loader.ClearMeshes();
+    }
+
+    // ボット初期化
+    AddObjectToScene(g_objects[0], on_scene_objects, 0.0f, 0.0f, 100.0f);
+    // サイト初期化
+    AddObjectToScene(g_objects[1], on_scene_objects, 0.0f, 1.0f, 3.0f);
 
     gp_rootsignature = new RootSignature();
     if (!gp_rootsignature->IsValid()) {
@@ -183,8 +190,8 @@ void Scene::Update() {
 
     const XMMATRIX view = XMMatrixLookAtLH(XMLoadFloat3(&eyeposition), XMLoadFloat3(&targetposition), XMLoadFloat3(&upward));
 
-    gp_constantbuffers[currentindex + 0]->GetPtr<Transform>()->view = view; // enemy_bot
-    gp_constantbuffers[currentindex + 2]->GetPtr<Transform>()->view = view; // sight
+    on_scene_objects[0].constantbuffers[currentindex]->GetPtr<Transform>()->view = view; // enemy_bot
+    on_scene_objects[1].constantbuffers[currentindex]->GetPtr<Transform>()->view = view; // sight
 }
 
 void Scene::Draw() {
@@ -193,24 +200,24 @@ void Scene::Draw() {
     auto material_heap = gp_descriptor_heap->GetHeap(); // ディスクリプタヒープ
 
     // モデルの数だけ描画
-    for (int count = 0; count < 2; ++count) {
+    for (int count = 0; count < on_scene_objects.size(); ++count) {
         // メッシュの数だけインデックス分の描画を処理を行う処理を回す
-        for (size_t i = 0; i < g_objects[count].size(); ++i) {
-            const auto vertexbufferview = g_vertex_buffers[count][i]->View(); // 頂点バッファビュー
-            const auto indexbufferview = g_index_buffers[count][i]->View(); // インデックスバッファビュー
+        for (size_t i = 0; i < on_scene_objects[count].object.size(); ++i) {
+            const auto vertexbufferview = on_scene_objects[count].vertex_buffer[i]->View(); // 頂点バッファビュー
+            const auto indexbufferview = on_scene_objects[count].index_buffer[i]->View(); // インデックスバッファビュー
 
             commandlist->SetGraphicsRootSignature(gp_rootsignature->Get()); // ルートシグネチャをセット
             commandlist->SetPipelineState(gp_pipelinestate->Get()); // パイプラインステートをセット
-            commandlist->SetGraphicsRootConstantBufferView(0, gp_constantbuffers[currentindex + count * 2]->GetAddress()); // 定数バッファをセット
+            commandlist->SetGraphicsRootConstantBufferView(0, on_scene_objects[count].constantbuffers[currentindex]->GetAddress()); // 定数バッファをセット
 
             commandlist->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST); // 三角形を描画する設定にする
             commandlist->IASetVertexBuffers(0, 1, &vertexbufferview); // 頂点バッファをスロット0番を使って1個だけ設定する
             commandlist->IASetIndexBuffer(&indexbufferview); // インデックスバッファをセットする
 
             commandlist->SetDescriptorHeaps(1, &material_heap); // 使用するディスクリプタヒープをセット
-            commandlist->SetGraphicsRootDescriptorTable(1, g_material_handles[count][i]->m_handle_GPU); // そのメッシュに対応するディスクリプタテーブルをセット
+            commandlist->SetGraphicsRootDescriptorTable(1, on_scene_objects[count].material_handle[i]->m_handle_GPU); // そのメッシュに対応するディスクリプタテーブルをセット
 
-            commandlist->DrawIndexedInstanced(g_objects[count][i].indices.size(), 1, 0, 0, 0); // インデックスの数分を描画する
+            commandlist->DrawIndexedInstanced(on_scene_objects[count].object[i]->indices.size(), 1, 0, 0, 0); // インデックスの数分を描画する
         }
     }
 }

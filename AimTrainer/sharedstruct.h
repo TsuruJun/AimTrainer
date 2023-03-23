@@ -1,5 +1,11 @@
 #pragma once
 #include "comptr.h"
+#include "vertexbuffer.h"
+#include "indexbuffer.h"
+#include "descriptorheap.h"
+#include "constantbuffer.h"
+#include "engine.h"
+#include <chrono>
 #include <DirectXMath.h>
 #include <d3dx12.h>
 
@@ -26,4 +32,19 @@ struct Mesh {
     std::vector<Vertex> vertices; // 頂点データの配列
     std::vector<uint32_t> indices; // インデックスの配列
     std::wstring diffusemap; // テクスチャのファイルパス
+};
+
+// TODO: シーン上に配置されるオブジェクトを管理する構造体を作成
+struct OnSceneObject {
+    std::vector<Mesh *> object;
+    std::vector<VertexBuffer *> vertex_buffer;
+    std::vector<IndexBuffer *> index_buffer;
+    std::vector<DescriptorHandle *> material_handle;
+    std::vector<ConstantBuffer *> constantbuffers;
+    // 弾が撃たれた時間
+    std::chrono::system_clock::time_point shooted_datetime;
+    // 弾が標的に当たったか
+    bool hit = false;
+    // 弾が飛んでいく方向
+    DirectX::XMFLOAT3 bullet_vector;
 };
