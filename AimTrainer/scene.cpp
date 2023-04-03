@@ -11,6 +11,7 @@
 #include "texture2D.h"
 #include "vertexbuffer.h"
 #include "shooting.h"
+#include "dinputhelper.h"
 #include <d3dx12.h>
 #include <filesystem>
 using namespace DirectX;
@@ -29,6 +30,7 @@ Scene *gp_scene;
 RootSignature *gp_rootsignature;
 PipelineState *gp_pipelinestate;
 DescriptorHeap *gp_descriptor_heap;
+DInputHelper *gp_dinput_helper;
 
 float rotateX = 0.0f;
 float yaw = 0.0f;
@@ -128,6 +130,7 @@ bool Scene::AddObjectToScene(vector<Mesh> &object, vector<OnSceneObject> &on_sce
 
 bool Scene::Init() {
     FbxLoader loader;
+    gp_dinput_helper = new DInputHelper();
 
     // モデルを読み込む
     for (int i = 0; i < model_list.size(); ++i) {
@@ -169,6 +172,11 @@ bool Scene::Init() {
 
 void Scene::Update() {
     const auto currentindex = gp_engine->CurrentBackBufferIndex(); // 現在のフレーム番号を取得する
+
+    // 弾を撃つ
+    if (gp_dinput_helper->isLeftClick()) {
+        g_shooting.Shoot(g_objects[2], on_scene_objects, 0.0f, 1.0f, 3.0f, /*弾が飛んでいく方向を指定*/{0.0f, 0.0f, 0.0f});
+    }
 
     // マウス座標取得
     POINT point{};

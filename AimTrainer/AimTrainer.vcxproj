@@ -23,6 +23,7 @@
     <ClInclude Include="comptr.h" />
     <ClInclude Include="constantbuffer.h" />
     <ClInclude Include="descriptorheap.h" />
+    <ClInclude Include="dinputhelper.h" />
     <ClInclude Include="engine.h" />
     <ClInclude Include="fbxloader.h" />
     <ClInclude Include="indexbuffer.h" />
@@ -38,6 +39,7 @@
     <ClCompile Include="app.cpp" />
     <ClCompile Include="constantbuffer.cpp" />
     <ClCompile Include="descriptorheap.cpp" />
+    <ClCompile Include="dinputhelper.cpp" />
     <ClCompile Include="enemybot.cpp" />
     <ClCompile Include="engine.cpp" />
     <ClCompile Include="fbxloader.cpp" />
@@ -205,7 +207,7 @@
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalLibraryDirectories>C:\Users\TsuruJun\source\repos\lib\DirectXTex-master\DirectXTex\Bin\Desktop_2022_Win10\x64\Debug</AdditionalLibraryDirectories>
-      <AdditionalDependencies>libfbxsdk-md.lib;libxml2-md.lib;zlib-md.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>libfbxsdk-md.lib;libxml2-md.lib;zlib-md.lib;dinput8.lib;dxguid.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
