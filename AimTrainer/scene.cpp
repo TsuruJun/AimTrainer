@@ -57,7 +57,16 @@ wstring ReplaceExtension(const wstring &origin, const char *extention) {
     return path.replace_extension(extention).c_str();
 }
 
-bool Scene::AddObjectToScene(vector<Mesh> &object, vector<OnSceneObject> &on_scene_objects, float init_x, float init_y, float init_z) {
+bool Scene::AddObjectToScene(
+    vector<Mesh> &object,
+    vector<OnSceneObject>
+    &on_scene_objects,
+    float position_x,
+    float position_y,
+    float position_z,
+    float scale_x,
+    float scale_y,
+    float scale_z) {
     OnSceneObject on_scene_object = {};
 
     // オブジェクトのポインタを保存
@@ -70,7 +79,7 @@ bool Scene::AddObjectToScene(vector<Mesh> &object, vector<OnSceneObject> &on_sce
         auto size = sizeof(Vertex) * object[i].vertices.size();
         auto stride = sizeof(Vertex);
         auto vertices = object[i].vertices.data();
-        auto p_vertex_buffer = new VertexBuffer(size, stride, vertices);
+        auto *p_vertex_buffer = new VertexBuffer(size, stride, vertices);
         if (!p_vertex_buffer->IsValid()) {
             printf("頂点バッファの生成に失敗\n");
             return false;
@@ -83,7 +92,7 @@ bool Scene::AddObjectToScene(vector<Mesh> &object, vector<OnSceneObject> &on_sce
     for (size_t i = 0; i < object.size(); ++i) {
         auto size = sizeof(uint32_t) * object[i].indices.size();
         auto indices = object[i].indices.data();
-        auto p_index_buffer = new IndexBuffer(size, indices);
+        auto *p_index_buffer = new IndexBuffer(size, indices);
         if (!p_index_buffer->IsValid()) {
             printf("インデックスバッファの生成に失敗");
             return false;
@@ -93,18 +102,18 @@ bool Scene::AddObjectToScene(vector<Mesh> &object, vector<OnSceneObject> &on_sce
     }
 
     // マテリアル読み込み
-    gp_descriptor_heap = new DescriptorHeap();
+    //gp_descriptor_heap = new DescriptorHeap();
 
-    for (size_t i = 0; i < object.size(); ++i) {
-        auto texture_path = ReplaceExtension(object[i].diffusemap, "tga"); // // もともとはpsdになっていてちょっとめんどかったので、同梱されているtgaを読み込む
-        auto main_texture = Texture2D::Get(texture_path);
-        auto handle = gp_descriptor_heap->Register(main_texture);
-        on_scene_object.material_handle.emplace_back(handle);
-    }
+    //for (size_t i = 0; i < object.size(); ++i) {
+    //    auto texture_path = ReplaceExtension(object[i].diffusemap, "tga"); // // もともとはpsdになっていてちょっとめんどかったので、同梱されているtgaを読み込む
+    //    auto main_texture = Texture2D::Get(texture_path);
+    //    auto handle = gp_descriptor_heap->Register(main_texture);
+    //    on_scene_object.material_handle.emplace_back(handle);
+    //}
 
     // カメラ設定
-    const XMFLOAT3 eyeposition = {0.0f, 1.0f, 0.0f}; // 視点の位置
-    const XMFLOAT3 targetposition = {0.0f + eyeposition.x, 1.0f, 1.0f + eyeposition.z};// 視点を向ける座標
+    const XMFLOAT3 eyeposition = {0.0f, 0.0f, 0.0f}; // 視点の位置
+    const XMFLOAT3 targetposition = {0.0f + eyeposition.x, eyeposition.y, 1.0f + eyeposition.z};// 視点を向ける座標
     const XMFLOAT3 upward = {0.0f, 1.0f, 0.0f}; // 上方向を表すベクトル
     constexpr auto fov = XMConvertToRadians(52.0f); // 視野角
     constexpr auto aspect = static_cast<float>(WINDOW_WIDTH) / static_cast<float>(WINDOW_HEIGHT); // アスペクト比
@@ -118,7 +127,7 @@ bool Scene::AddObjectToScene(vector<Mesh> &object, vector<OnSceneObject> &on_sce
 
         // 変換行列の登録
         auto ptr = on_scene_object.constantbuffers[i]->GetPtr<Transform>();
-        ptr->world = XMMatrixIdentity() * XMMatrixTranslation(init_x, init_y, init_z);
+        ptr->world = XMMatrixIdentity() * XMMatrixScaling(scale_x, scale_y, scale_z) * XMMatrixTranslation(position_x, position_y, position_z);
         ptr->view = XMMatrixLookAtLH(XMLoadFloat3(&eyeposition), XMLoadFloat3(&targetposition), XMLoadFloat3(&upward));
         ptr->proj = XMMatrixPerspectiveFovLH(fov, aspect, 0.3f, 1000.f);
     }
@@ -146,7 +155,7 @@ bool Scene::Init() {
     // ボット初期化
     AddObjectToScene(g_objects[0], on_scene_objects, 0.0f, 0.0f, 100.0f);
     // サイト初期化
-    AddObjectToScene(g_objects[1], on_scene_objects, 0.0f, 1.0f, 3.0f);
+    AddObjectToScene(g_objects[1], on_scene_objects, 0.0f, 0.0f, 3.0f);
 
     gp_rootsignature = new RootSignature();
     if (!gp_rootsignature->IsValid()) {
@@ -173,35 +182,62 @@ bool Scene::Init() {
 void Scene::Update() {
     const auto currentindex = gp_engine->CurrentBackBufferIndex(); // 現在のフレーム番号を取得する
 
-    // 弾を撃つ
-    if (gp_dinput_helper->isLeftClick()) {
-        g_shooting.Shoot(g_objects[2], on_scene_objects, 0.0f, 1.0f, 3.0f, /*弾が飛んでいく方向を指定*/{0.0f, 0.0f, 0.0f});
-    }
-
     // マウス座標取得
     POINT point{};
     GetCursorPos(&point);
     ScreenToClient(gp_engine->GetHwnd(), &point);
 
     // 中心からのマウスの差分を取得
-    const float diff_x = (static_cast<float>(point.x) - static_cast<float>(WINDOW_WIDTH) / 2) / 1000;
-    const float diff_y = (static_cast<float>(point.y) - static_cast<float>(WINDOW_HEIGHT) / 2) / 1000;
+    const float diff_x = (static_cast<float>(point.x) - static_cast<float>(WINDOW_WIDTH) / 2) / 500;
+    const float diff_y = (static_cast<float>(WINDOW_HEIGHT) / 2 - static_cast<float>(point.y)) / 500; // スクリーン座標ではyの方向が逆
+
+    // サイトをカメラに合わせて動かす
+    on_scene_objects[1].constantbuffers[currentindex]->GetPtr<Transform>()->world = XMMatrixTranslation(0.0f, 0.0f, 3.0f) * XMMatrixRotationRollPitchYaw(-diff_y, diff_x, 0.0f);
+
+    const float sight_position_x = on_scene_objects[1].constantbuffers[currentindex]->GetPtr<Transform>()->world.r[3].m128_f32[0];
+    const float sight_position_y = on_scene_objects[1].constantbuffers[currentindex]->GetPtr<Transform>()->world.r[3].m128_f32[1];
+    const float sight_position_z = on_scene_objects[1].constantbuffers[currentindex]->GetPtr<Transform>()->world.r[3].m128_f32[2];
+
+    // 弾を削除
+    g_shooting.ManagementBullets(on_scene_objects);
+
+    // 弾を動かす
+    for (size_t i = 0; i < on_scene_objects.size(); ++i) {
+        if (on_scene_objects[i].is_bullet) {
+            g_shooting.MoveBullet(currentindex, on_scene_objects[i]);
+        }
+    }
+
+    // 弾を撃つ
+    if (gp_dinput_helper->isLeftClick()) {
+        g_shooting.Shoot(
+            g_objects[2],
+            on_scene_objects,
+            {sight_position_x * 5, sight_position_y * 5, sight_position_z * 5},
+            sight_position_x,
+            sight_position_y,
+            sight_position_z,
+            0.2f,
+            0.2f,
+            0.2f);
+    }
 
     // マウスの座標をカメラの向きに反映
-    const XMFLOAT3 eyeposition = {0.0f, 1.0f, 0.0f};
-    const XMFLOAT3 targetposition = {diff_x + eyeposition.x, 1.0f - diff_y, 1.0f + eyeposition.z};
+    const XMFLOAT3 eyeposition = {0.0f, 0.0f, 0.0f};
+    const XMFLOAT3 targetposition = {eyeposition.x, eyeposition.y, 1.0f + eyeposition.z};
     const XMFLOAT3 upward = {0.0f, 1.0f, 0.0f};
 
-    const XMMATRIX view = XMMatrixLookAtLH(XMLoadFloat3(&eyeposition), XMLoadFloat3(&targetposition), XMLoadFloat3(&upward));
+    const XMMATRIX view = XMMatrixLookAtLH(XMLoadFloat3(&eyeposition), XMLoadFloat3(&targetposition), XMLoadFloat3(&upward)) * XMMatrixRotationRollPitchYaw(diff_y, -diff_x, 0.0f);
 
-    on_scene_objects[0].constantbuffers[currentindex]->GetPtr<Transform>()->view = view; // enemy_bot
-    on_scene_objects[1].constantbuffers[currentindex]->GetPtr<Transform>()->view = view; // sight
+    for (size_t i = 0; i < on_scene_objects.size(); ++i) {
+        on_scene_objects[i].constantbuffers[currentindex]->GetPtr<Transform>()->view = view;
+    }
 }
 
 void Scene::Draw() {
     const auto currentindex = gp_engine->CurrentBackBufferIndex(); // 現在のフレーム番号を取得する
     const auto commandlist = gp_engine->CommandList(); // コマンドリスト
-    auto material_heap = gp_descriptor_heap->GetHeap(); // ディスクリプタヒープ
+    //auto material_heap = gp_descriptor_heap->GetHeap(); // ディスクリプタヒープ
 
     // モデルの数だけ描画
     for (int count = 0; count < on_scene_objects.size(); ++count) {
@@ -218,8 +254,8 @@ void Scene::Draw() {
             commandlist->IASetVertexBuffers(0, 1, &vertexbufferview); // 頂点バッファをスロット0番を使って1個だけ設定する
             commandlist->IASetIndexBuffer(&indexbufferview); // インデックスバッファをセットする
 
-            commandlist->SetDescriptorHeaps(1, &material_heap); // 使用するディスクリプタヒープをセット
-            commandlist->SetGraphicsRootDescriptorTable(1, on_scene_objects[count].material_handle[i]->m_handle_GPU); // そのメッシュに対応するディスクリプタテーブルをセット
+            //commandlist->SetDescriptorHeaps(1, &material_heap); // 使用するディスクリプタヒープをセット
+            //commandlist->SetGraphicsRootDescriptorTable(1, on_scene_objects[count].material_handle[i]->m_handle_GPU); // そのメッシュに対応するディスクリプタテーブルをセット
 
             commandlist->DrawIndexedInstanced(on_scene_objects[count].object[i]->indices.size(), 1, 0, 0, 0); // インデックスの数分を描画する
         }

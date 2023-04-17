@@ -9,9 +9,18 @@
 class Shooting {
 public:
     // 弾を撃つ
-    bool Shoot(std::vector<Mesh> &object, std::vector<OnSceneObject> &on_scene_objects, float init_x, float init_y, float init_z, DirectX::XMFLOAT3 targetposition);
+    bool Shoot(
+        std::vector<Mesh> &object,
+        std::vector<OnSceneObject> &on_scene_objects,
+        DirectX::XMFLOAT3 targetposition,
+        float position_x,
+        float position_y,
+        float position_z,
+        float scale_x = 1.0f,
+        float scale_y = 1.0f,
+        float scale_z = 1.0f);
     // 弾を動かす
-    bool MoveBullets(UINT currentindex, OnSceneObject &on_scene_object);
+    bool MoveBullet(UINT currentindex, OnSceneObject &on_scene_object);
     // 弾を表示するか管理する
-    bool ManagementBullets(OnSceneObject &on_scene_object);
+    void ManagementBullets(std::vector<OnSceneObject> &on_scene_objects);
 };

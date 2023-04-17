@@ -34,15 +34,17 @@ struct Mesh {
     std::wstring diffusemap; // テクスチャのファイルパス
 };
 
-// TODO: シーン上に配置されるオブジェクトを管理する構造体を作成
+// シーン上に配置されるオブジェクトを管理する構造体を作成
 struct OnSceneObject {
     std::vector<Mesh *> object;
     std::vector<VertexBuffer *> vertex_buffer;
     std::vector<IndexBuffer *> index_buffer;
     std::vector<DescriptorHandle *> material_handle;
     std::vector<ConstantBuffer *> constantbuffers;
+    // オブジェクトが弾か
+    bool is_bullet = false;
     // 弾が撃たれた時間
-    std::chrono::system_clock::time_point shooted_datetime;
+    long long shooted_datetime;
     // 弾が標的に当たったか
     bool hit = false;
     // 弾が飛んでいく方向
