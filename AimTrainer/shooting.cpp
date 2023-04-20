@@ -56,6 +56,12 @@ void Shooting::ManagementBullets(vector<OnSceneObject> &on_scene_objects) {
     for (auto itr = on_scene_objects.begin(); itr != on_scene_objects.end();) {
         // 弾が作成されて1秒以上たつまたは弾が当たる
         if (itr->is_bullet && ((now - itr->shooted_datetime) > 3000000 || itr->hit)) {
+            // メモリ削除
+            delete itr->vertex_buffer[0];
+            delete itr->index_buffer[0];
+            delete itr->constantbuffers[0];
+            delete itr->constantbuffers[1];
+
             // 削除
             itr = on_scene_objects.erase(itr); // 次のイテレータが返される
         } else {
