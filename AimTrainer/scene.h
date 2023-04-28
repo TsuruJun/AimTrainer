@@ -10,8 +10,7 @@ public:
 
     bool AddObjectToScene(
         std::vector<Mesh> &object,
-        std::vector<OnSceneObject>
-        &on_scene_objects,
+        std::vector<OnSceneObject> &on_scene_objects,
         float position_x,
         float position_y,
         float position_z,

@@ -12,6 +12,7 @@
 #include "vertexbuffer.h"
 #include "shooting.h"
 #include "dinputhelper.h"
+#include "collision.h"
 #include <d3dx12.h>
 #include <filesystem>
 using namespace DirectX;
@@ -59,8 +60,7 @@ wstring ReplaceExtension(const wstring &origin, const char *extention) {
 
 bool Scene::AddObjectToScene(
     vector<Mesh> &object,
-    vector<OnSceneObject>
-    &on_scene_objects,
+    vector<OnSceneObject> &on_scene_objects,
     float position_x,
     float position_y,
     float position_z,
@@ -73,6 +73,14 @@ bool Scene::AddObjectToScene(
     for (size_t i = 0; i < object.size(); ++i) {
         on_scene_object.object.emplace_back(&object[i]);
     }
+
+    // バウンディングボックスを計算
+    Collision collision;
+    BoundingBox boundingbox = collision.ComputeBoundingBox(object);
+    boundingbox.min.x += position_x;
+    boundingbox.min.y += position_y;
+    boundingbox.min.z += position_z;
+    on_scene_object.boundingbox = boundingbox;
 
     // メッシュの数だけ頂点バッファを用意する
     for (size_t i = 0; i < object.size(); ++i) {
@@ -153,7 +161,7 @@ bool Scene::Init() {
     }
 
     // ボット初期化
-    AddObjectToScene(g_objects[0], on_scene_objects, 0.0f, 0.0f, 100.0f);
+    AddObjectToScene(g_objects[0], on_scene_objects, 0.0f, 0.0f, 10.0f);
     // サイト初期化
     AddObjectToScene(g_objects[1], on_scene_objects, 0.0f, 0.0f, 3.0f);
 
@@ -198,6 +206,25 @@ void Scene::Update() {
     const float sight_position_y = on_scene_objects[1].constantbuffers[currentindex]->GetPtr<Transform>()->world.r[3].m128_f32[1];
     const float sight_position_z = on_scene_objects[1].constantbuffers[currentindex]->GetPtr<Transform>()->world.r[3].m128_f32[2];
 
+    // 弾とボットの当たり判定
+    Collision collision;
+    for (size_t i = 0; i < on_scene_objects.size(); ++i) {
+        if (on_scene_objects[i].is_bullet) {
+            XMMATRIX &now_world = on_scene_objects[i].constantbuffers[currentindex]->GetPtr<Transform>()->world;
+
+            const float current_position_x = now_world.r[3].m128_f32[0];
+            const float current_position_y = now_world.r[3].m128_f32[1];
+            const float current_position_z = now_world.r[3].m128_f32[2];
+            XMFLOAT3 point_position = {current_position_x, current_position_y, current_position_z};
+
+            const bool ishit = collision.isCollisionPointToBoundingBox(point_position, on_scene_objects[0].boundingbox);
+
+            if (ishit) {
+                on_scene_objects[i].hit = ishit;
+            }
+        }
+    }
+
     // 弾を削除
     g_shooting.ManagementBullets(on_scene_objects);
 
@@ -213,7 +240,7 @@ void Scene::Update() {
         g_shooting.Shoot(
             g_objects[2],
             on_scene_objects,
-            {sight_position_x * 5, sight_position_y * 5, sight_position_z * 5},
+            {sight_position_x * 0.1f, sight_position_y * 0.1f, sight_position_z * 0.1f},
             sight_position_x,
             sight_position_y,
             sight_position_z,

@@ -34,6 +34,13 @@ struct Mesh {
     std::wstring diffusemap; // テクスチャのファイルパス
 };
 
+struct BoundingBox {
+    DirectX::XMFLOAT3 min;
+    float size_x;
+    float size_y;
+    float size_z;
+};
+
 // シーン上に配置されるオブジェクトを管理する構造体を作成
 struct OnSceneObject {
     std::vector<Mesh *> object;
@@ -41,6 +48,7 @@ struct OnSceneObject {
     std::vector<IndexBuffer *> index_buffer;
     std::vector<DescriptorHandle *> material_handle;
     std::vector<ConstantBuffer *> constantbuffers;
+    BoundingBox boundingbox;
     // オブジェクトが弾か
     bool is_bullet = false;
     // 弾が撃たれた時間
