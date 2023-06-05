@@ -174,8 +174,8 @@ bool Scene::Init() {
     gp_pipelinestate = new PipelineState();
     gp_pipelinestate->SetInputLayout(Vertex::inputlayout);
     gp_pipelinestate->SetRootSignature(gp_rootsignature->Get());
-    gp_pipelinestate->SetVertexShader(L"../x64/Debug/simplevertexshader.cso");
-    gp_pipelinestate->SetPixelShader(L"../x64/Debug/simplepixelshader.cso");
+    gp_pipelinestate->SetVertexShader(L"C:\\Users\\TsuruJun\\source\\repos\\AimTrainer\\x64\\Release\\simplevertexshader.cso");
+    gp_pipelinestate->SetPixelShader(L"C:\\Users\\TsuruJun\\source\\repos\\AimTrainer\\x64\\Release\\simplepixelshader.cso");
     gp_pipelinestate->Create();
     if (!gp_pipelinestate->IsValid()) {
         printf("パイプラインステートの生成に失敗");

@@ -27,7 +27,7 @@ public:
     HWND GetHwnd();
 
 private:
-    // DirextX12初期化に使う関数たち
+    // DirectX12初期化に使う関数たち
     bool CreateDevice(); // デバイスを生成
     bool CreateCommandQueue(); // コマンドキューを生成
     bool CreateSwapChain(); // スワップチェインを生成

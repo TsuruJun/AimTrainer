@@ -33,6 +33,7 @@
     <ClInclude Include="scene.h" />
     <ClInclude Include="sharedstruct.h" />
     <ClInclude Include="shooting.h" />
+    <ClInclude Include="sound.h" />
     <ClInclude Include="texture2D.h" />
     <ClInclude Include="vertexbuffer.h" />
   </ItemGroup>
@@ -52,6 +53,7 @@
     <ClCompile Include="scene.cpp" />
     <ClCompile Include="sharedstruct.cpp" />
     <ClCompile Include="shooting.cpp" />
+    <ClCompile Include="sound.cpp" />
     <ClCompile Include="texture2D.cpp" />
     <ClCompile Include="vertexbuffer.cpp" />
   </ItemGroup>
@@ -209,7 +211,7 @@
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalLibraryDirectories>C:\Users\TsuruJun\source\repos\lib\DirectXTex-master\DirectXTex\Bin\Desktop_2022_Win10\x64\Debug</AdditionalLibraryDirectories>
-      <AdditionalDependencies>libfbxsdk-md.lib;libxml2-md.lib;zlib-md.lib;dinput8.lib;dxguid.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>libfbxsdk-md.lib;libxml2-md.lib;zlib-md.lib;dinput8.lib;dsound.lib;dxguid.lib;winmm.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -222,13 +224,15 @@
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp20</LanguageStandard>
       <AdditionalOptions>/utf-8 %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalIncludeDirectories>C:\Users\TsuruJun\source\repos\lib\DirectXTex-master\DirectXTex</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>libfbxsdk-md.lib;libxml2-md.lib;zlib-md.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>libfbxsdk-md.lib;libxml2-md.lib;zlib-md.lib;dinput8.lib;dsound.lib;dxguid.lib;winmm.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>C:\Users\TsuruJun\source\repos\lib\DirectXTex-master\DirectXTex\Bin\Desktop_2022_Win10\x64\Release</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
