@@ -13,6 +13,7 @@
 #include "shooting.h"
 #include "dinputhelper.h"
 #include "collision.h"
+#include "sound.h"
 #include <d3dx12.h>
 #include <filesystem>
 using namespace DirectX;
@@ -23,8 +24,8 @@ namespace fs = filesystem;
 // 読み込むモデルをリスト化
 vector<const char *> model_list{
     "C:\\Users\\TsuruJun\\source\\repos\\Model\\fbx\\enemy_bot.fbx",
-    "C:\\Users\\TsuruJun\\source\\repos\\Model\\fbx\\sight.fbx",
-    "C:\\Users\\TsuruJun\\source\\repos\\Model\\fbx\\bullet.fbx"};
+        "C:\\Users\\TsuruJun\\source\\repos\\Model\\fbx\\sight.fbx",
+        "C:\\Users\\TsuruJun\\source\\repos\\Model\\fbx\\bullet.fbx"};
 
 Scene *gp_scene;
 // シーンのメンバに持たせる
@@ -49,6 +50,7 @@ int mouse_position_y = 0;
 vector<vector<Mesh>> g_objects; // メッシュの配列
 
 Shooting g_shooting;
+Sound g_sound;
 
 vector<OnSceneObject> on_scene_objects;
 
@@ -184,6 +186,11 @@ bool Scene::Init() {
 
     printf("シーンの初期化に成功");
 
+    // サウンド初期化
+    g_sound.InitSound();
+    WCHAR sound_file_name[] = L"C:\\Users\\TsuruJun\\source\\repos\\Sound\\maou_se_8bit02.wav";
+    g_sound.LoadSound(sound_file_name);
+
     return true;
 }
 
@@ -221,6 +228,7 @@ void Scene::Update() {
 
             if (ishit) {
                 on_scene_objects[i].hit = ishit;
+                g_sound.PlaySoundFile();
             }
         }
     }
