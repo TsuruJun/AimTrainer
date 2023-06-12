@@ -20,6 +20,8 @@ bool Sound::InitSound() {
         printf("強調レベルの設定に失敗");
         return false;
     }
+
+    return true;
 }
 
 void Sound::ReleaseSound() {
