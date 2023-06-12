@@ -183,5 +183,6 @@ bool Sound::LoadWAV(LPWSTR file_name, WavData *out_wave_data) {
 }
 
 void Sound::PlaySoundFile() {
+    m_sound_buffer->SetVolume(-1000);
     m_sound_buffer->Play(0, 0, DSBPLAY_LOOPING & 0);
 }
