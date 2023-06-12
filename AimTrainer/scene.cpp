@@ -192,7 +192,7 @@ bool Scene::Init() {
 
     // サウンド初期化
     g_sound.InitSound();
-    WCHAR sound_file_name[] = L"C:\\Users\\TsuruJun\\source\\repos\\Sound\\maou_se_8bit02.wav";
+    WCHAR sound_file_name[] = L"C:\\Users\\TsuruJun\\source\\repos\\Sound\\hit.wav";
     g_sound.LoadSound(sound_file_name);
 
     return true;
