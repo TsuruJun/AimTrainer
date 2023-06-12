@@ -14,6 +14,7 @@
 #include "dinputhelper.h"
 #include "collision.h"
 #include "sound.h"
+#include "enemybot.h"
 #include <d3dx12.h>
 #include <filesystem>
 using namespace DirectX;
@@ -51,6 +52,7 @@ vector<vector<Mesh>> g_objects; // メッシュの配列
 
 Shooting g_shooting;
 Sound g_sound;
+EnemyBot *g_enemybot;
 
 vector<OnSceneObject> on_scene_objects;
 
@@ -163,7 +165,9 @@ bool Scene::Init() {
     }
 
     // ボット初期化
-    AddObjectToScene(g_objects[0], on_scene_objects, 0.0f, 0.0f, 10.0f);
+    AddObjectToScene(g_objects[0], on_scene_objects, 0.0f, -2.5f, 10.0f);
+    // EnemyBot初期化
+    g_enemybot = new EnemyBot(0.0f, -2.5f, 10.0f);
     // サイト初期化
     AddObjectToScene(g_objects[1], on_scene_objects, 0.0f, 0.0f, 3.0f);
 
@@ -196,6 +200,9 @@ bool Scene::Init() {
 
 void Scene::Update() {
     const auto currentindex = gp_engine->CurrentBackBufferIndex(); // 現在のフレーム番号を取得する
+
+    // bot移動
+    g_enemybot->RoundTripX(0.02f, 10.0f, on_scene_objects[0].constantbuffers[currentindex]->GetPtr<Transform>(), on_scene_objects[0].boundingbox);
 
     // マウス座標取得
     POINT point{};
