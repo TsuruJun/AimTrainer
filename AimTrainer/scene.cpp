@@ -24,9 +24,9 @@ namespace fs = filesystem;
 
 // 読み込むモデルをリスト化
 vector<const char *> model_list{
-    "C:\\Users\\TsuruJun\\source\\repos\\Model\\fbx\\enemy_bot.fbx",
-        "C:\\Users\\TsuruJun\\source\\repos\\Model\\fbx\\sight.fbx",
-        "C:\\Users\\TsuruJun\\source\\repos\\Model\\fbx\\bullet.fbx"};
+    ".\\Model\\fbx\\enemy_bot.fbx",
+        ".\\Model\\fbx\\sight.fbx",
+        ".\\Model\\fbx\\bullet.fbx"};
 
 Scene *gp_scene;
 // シーンのメンバに持たせる
@@ -180,8 +180,8 @@ bool Scene::Init() {
     gp_pipelinestate = new PipelineState();
     gp_pipelinestate->SetInputLayout(Vertex::inputlayout);
     gp_pipelinestate->SetRootSignature(gp_rootsignature->Get());
-    gp_pipelinestate->SetVertexShader(L"C:\\Users\\TsuruJun\\source\\repos\\AimTrainer\\x64\\Release\\simplevertexshader.cso");
-    gp_pipelinestate->SetPixelShader(L"C:\\Users\\TsuruJun\\source\\repos\\AimTrainer\\x64\\Release\\simplepixelshader.cso");
+    gp_pipelinestate->SetVertexShader(L"..\\x64\\Debug\\simplevertexshader.cso");
+    gp_pipelinestate->SetPixelShader(L"..\\x64\\Debug\\simplepixelshader.cso");
     gp_pipelinestate->Create();
     if (!gp_pipelinestate->IsValid()) {
         printf("パイプラインステートの生成に失敗");
@@ -192,7 +192,7 @@ bool Scene::Init() {
 
     // サウンド初期化
     g_sound.InitSound();
-    WCHAR sound_file_name[] = L"C:\\Users\\TsuruJun\\source\\repos\\Sound\\hit.wav";
+    WCHAR sound_file_name[] = L".\\Sound\\hit.wav";
     g_sound.LoadSound(sound_file_name);
 
     return true;
